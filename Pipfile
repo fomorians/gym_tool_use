@@ -1,0 +1,15 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pycolab = "*"
+gym = "*"
+gym-pycolab = {editable = true, git = "https://github.com/fomorians/gym_pycolab.git"}
+
+[dev-packages]
+pylint = "<2.0.0"
+
+[requires]
+python_version = "3.6"
