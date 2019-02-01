@@ -42,6 +42,12 @@ class TestBridgeBuilding(unittest.TestCase):
             actions=[0, 0, 0, 3, 3, 3, 3], 
             level=0)
 
+        # Failures and boundaries
+        self._expect_reward_from_actions_on_level(
+            expected_reward=0., 
+            actions=[1], 
+            level=0)
+
         # Successes
         self._expect_reward_from_actions_on_level(
             expected_reward=1., 
