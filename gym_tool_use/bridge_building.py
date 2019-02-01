@@ -29,7 +29,7 @@ BRIDGE_BUILDING_ART = [
      '##########'],
 
     # Level-1: No "explicit" tool-use involved to accomplish the goal (similar to Level-0).
-    ['##########',
+    ['##########', # -> 000030
      '#WG WW G #', 
      '#  W 1W  #', 
      '# W    20#',
