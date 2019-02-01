@@ -10,4 +10,14 @@ from gym_tool_use.bridge_building import BridgeBuildingEnv
 register(
     id='BridgeBuilding-v0',
     entry_point='gym_tool_use.bridge_building:BridgeBuildingEnv',
-    kwargs={'max_steps': 500})
+    kwargs={'max_steps': 500, 'level': 0})
+
+register(
+    id='BridgeBuilding-v1',
+    entry_point='gym_tool_use.bridge_building:BridgeBuildingEnv',
+    kwargs={'max_steps': 500, 'level': 1})
+
+register(
+    id='BridgeBuilding-v2',
+    entry_point='gym_tool_use.bridge_building:BridgeBuildingEnv',
+    kwargs={'max_steps': 500, 'level': 2})
