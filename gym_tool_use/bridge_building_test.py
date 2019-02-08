@@ -29,17 +29,13 @@ class TestBridgeBuilding(unittest.TestCase):
         # Successes
         self._expect_reward_from_actions_on_level(
             expected_reward=1., 
-            actions=[0, 0, 0, 3, 3, 0, 3, 3, 0, 3, 3, 3], 
+            actions=[0, 0, 0, 3, 3, 0, 3, 3, 0, 3], 
             level=0)
-        self._expect_reward_from_actions_on_level(
-            expected_reward=1., 
-            actions=[0, 0, 0, 3, 3, 3, 0, 3, 0, 3, 3, 3], 
-            level=0)
-        
+
         # Failures
         self._expect_reward_from_actions_on_level(
             expected_reward=-1., 
-            actions=[0, 0, 0, 3, 3, 3, 3], 
+            actions=[0, 0, 0, 3, 3, 3], 
             level=0)
 
         # Failures and boundaries
@@ -54,6 +50,12 @@ class TestBridgeBuilding(unittest.TestCase):
             actions=[0, 0, 0, 0, 3, 0], 
             level=1)
 
+        # Failures
+        self._expect_reward_from_actions_on_level(
+            expected_reward=-1., 
+            actions=[3, 3], 
+            level=1)
+
         # Successes
         self._expect_reward_from_actions_on_level(
             expected_reward=1., 
@@ -61,11 +63,11 @@ class TestBridgeBuilding(unittest.TestCase):
             level=2)
         self._expect_reward_from_actions_on_level(
             expected_reward=2., 
-            actions=[3, 0, 0, 0, 1, 1, 1, 3, 3, 3, 0, 0, 0, 0], 
+            actions=[3, 0, 0, 0, 1, 1, 1, 3, 3, 3, 3, 0, 0, 0, 0], 
             level=2)
         self._expect_reward_from_actions_on_level(
             expected_reward=3., 
-            actions=[3, 0, 0, 0, 1, 1, 1, 3, 3, 3, 0, 0, 0, 0, 1, 1, 3, 3, 0, 0, 3], 
+            actions=[3, 0, 0, 0, 1, 1, 1, 3, 3, 3, 0, 0, 0, 1, 3, 0, 0], 
             level=2)
         
         # Failures

@@ -19,34 +19,34 @@ from gym_pycolab import pycolab_env
 
 BRIDGE_BUILDING_ART = [
     # Level-0: No "explicit" tool-use involved to accomplish the goal.
-    ['##########', # -> 000330330333
-     '#WWWW   G#', # -> 000333030333
-     '# 3   W  #', 
-     '#    W 2 #',
-     '#   W    #', 
-     '# 1  0   #', 
-     '#P   4  G#', 
-     '##########'],
+    ['########', 
+     '#WWWW G#', 
+     '# 3   W#', 
+     '#   W 2#',
+     '#  W   #', 
+     '# 1  0 #', 
+     '#P  4 G#', 
+     '########'],
 
     # Level-1: No "explicit" tool-use involved to accomplish the goal (similar to Level-0).
-    ['##########', # -> 000030
-     '#WG WW G #', 
-     '#  W 1W  #', 
-     '# W    20#',
-     '#3 W     #', 
-     '#     WW #', 
-     '#P   W  G#',
-     '##########'],
+    ['########', 
+     '#WG W G#', 
+     '#  W 1 #', 
+     '# W 2 0#',
+     '#3     #', 
+     '#   WW #', 
+     '#P W  G#',
+     '########'],
 
     # Level-2: Tool-use required to accomplish the goal.
-    ['##########', # -> 3000
-     '#WWW G# G#', # -> 3000111330000
-     '# G#W WWW#', # -> 30001113300001133003
-     '#  # W 2 #',
-     '#WWW     #', 
-     '# 1  0   #', 
-     '#P       #', 
-     '##########'],
+    ['########', 
+     '#WWWW#G#', 
+     '# G#WGW#', 
+     '#  # W2#',
+     '#WWW   #', 
+     '# 1  0 #', 
+     '#P     #', 
+     '########'],
 ]
 
 BOXES = '1234567890'
