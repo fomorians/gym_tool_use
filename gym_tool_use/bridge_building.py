@@ -57,6 +57,8 @@ def paint(art, positions, characters):
     return art
 
 
+# TODO(wenkesj): ensure boxes are not generated ontop of 
+# each other when there are is even number.
 def generate_art(num_boxes):
     """Generate art given the number of boxes."""
     if num_boxes == -1:
