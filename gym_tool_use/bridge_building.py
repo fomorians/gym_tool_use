@@ -17,72 +17,19 @@ from gym_pycolab import pycolab_env
 #   0
 # 2 1 3
 
-BRIDGE_BUILDING_ART = [
-    # Level-0: No "explicit" tool-use involved to accomplish the goal.
-    ['########', 
-     '#WWWW G#', 
-     '# 3   W#', 
-     '#   W 2#',
-     '#  W   #', 
-     '# 1  0 #', 
-     '#P  4 G#', 
-     '########'],
-
-    # Level-1: No "explicit" tool-use involved to accomplish the goal (similar to Level-0).
-    ['########', 
-     '#WG W G#', 
-     '#  W 1 #', 
-     '# W 2 0#',
-     '#3     #', 
-     '#   WW #', 
-     '#P W  G#',
-     '########'],
-
-    # Level-2: Tool-use required to accomplish the goal.
-    ['########', 
-     '#WWWW#G#', 
-     '# G#WGW#', 
-     '#  # W2#',
-     '#WWW   #', 
-     '# 1  0 #', 
-     '#P     #', 
-     '########'],
+BRIDGE_BUILDING_TEMPLATE = [
+    '########', 
+    '#      #', 
+    '#      #', 
+    '#WWWWWW#',
+    '#      #', 
+    '#      #', 
+    '#      #', 
+    '########'
 ]
 
-BRIDGE_BUILDING_ART += [
-    ['########', 
-     '#  G   #', 
-     '#      #', 
-     '#WWWWWW#',
-     '#      #', 
-     '#   0  #', 
-     '# P    #', 
-     '########'],
-    ['########', 
-     '#   W  #', 
-     '# 0 W  #', 
-     '#   W G#',
-     '#P  W  #', 
-     '#   W  #', 
-     '#   W  #', 
-     '########'],
-    ['########', 
-     '#  W   #', 
-     '#  W0  #', 
-     '#G W   #',
-     '#  W   #', 
-     '#  W  P#', 
-     '#  W   #', 
-     '########'],
-    ['########', 
-     '#  P   #', 
-     '#    0 #', 
-     '#      #',
-     '#WWWWWW#', 
-     '#      #', 
-     '# G    #', 
-     '########'],
-]
+GOAL_REWARD = 1.
+WATER_REWARD = -1.
 
 BOXES = '1234567890'
 
@@ -95,10 +42,66 @@ COLORS = {
 BOX_COLORS = {box: (255, 255, 0) for box in BOXES}
 COLORS.update(BOX_COLORS)
 
+BOX_POSITIONS = [
+    [(2, y) for y in range(1, len(BRIDGE_BUILDING_TEMPLATE) - 1)],
+    [(x, y) 
+     for y in range(1, len(BRIDGE_BUILDING_TEMPLATE) - 1)
+     for x in range(4, 6)]
+]
+
+
+def paint(art, positions, characters):
+    """Paint characters into their positions in the art."""
+    for position, character in zip(positions, characters):
+        art[position[0]][position[1]] = character
+    return art
+
+
+def generate_art(num_boxes):
+    """Generate art given the number of boxes."""
+    if num_boxes == -1:
+        num_boxes = np.random.choice(3) + 1
+
+    assert num_boxes > 0 and num_boxes < 4, '0 > `num_boxes` or `num_boxes` > 3 ' 
+    x_positions = [1, len(BRIDGE_BUILDING_TEMPLATE) - 2]
+    player_side, goal_side = np.random.choice(2, size=2, replace=False)
+
+    # Generate player position
+    player_position = (
+        x_positions[player_side], 
+        np.random.randint(1, len(BRIDGE_BUILDING_TEMPLATE) - 2))
+    
+    # Generate goal position
+    goal_position = (
+        x_positions[goal_side], 
+        np.random.randint(1, len(BRIDGE_BUILDING_TEMPLATE) - 2))
+
+    # Generate box positions
+    box_side_positions = list(BOX_POSITIONS[player_side])
+    box_position_indices = np.random.choice(
+        len(box_side_positions), size=num_boxes, replace=False)
+    box_positions = [box_side_positions[box_position_index] 
+                     for box_position_index in box_position_indices]
+
+    # Assign random numbers to the boxes.
+    box_ids = np.random.choice(len(BOXES), size=num_boxes, replace=False)
+
+    # Paint positions
+    art = list(BRIDGE_BUILDING_TEMPLATE)
+    art = [list(row) for row in art]
+    art = paint(art, [player_position], ['P'])
+    art = paint(art, [goal_position], ['G'])
+    art = paint(art, box_positions, [str(box_id) for box_id in box_ids])
+
+    # Random rotation
+    art = np.rot90(art, np.random.choice(4))
+    art = [''.join(row) for row in art.tolist()]
+    return art
+
 
 def make_game(level):
     """Builds and returns a Bridge Building game for the selected level."""
-    bridge_building_art = BRIDGE_BUILDING_ART[level]
+    bridge_building_art = generate_art(level)
     sprites = {'P': PlayerSprite}
     box_sprites = {box: BoxSprite for box in BOXES}
     sprites.update(box_sprites)
@@ -122,7 +125,7 @@ class WaterDrape(plab_things.Drape):
 
         # End the episode if the agent is on the water tile.
         if self.curtain[player.position]:
-            the_plot.add_reward(-1.)
+            the_plot.add_reward(WATER_REWARD)
             the_plot.terminate_episode()
 
 
@@ -137,7 +140,7 @@ class GoalDrape(plab_things.Drape):
 
         # Reward the agent if the goal has been reached and remove it.
         if self.curtain[player.position]:
-            the_plot.add_reward(1.)
+            the_plot.add_reward(GOAL_REWARD)
             self.curtain[player.position] = False
 
         # End the episode if all goals have been reached.
@@ -148,7 +151,7 @@ class GoalDrape(plab_things.Drape):
 class BoxSprite(prefab_sprites.MazeWalker):
 
     def __init__(self, corner, position, character):
-        impassable = set(BOXES + '#GBX') - set(character)
+        impassable = set(BOXES + '#PGBX') - set(character)
         super(BoxSprite, self).__init__(corner, position, character, impassable)
 
         # Remove the boxes that aren't on the map.
@@ -195,7 +198,7 @@ class PlayerSprite(prefab_sprites.MazeWalker):
 
     def __init__(self, corner, position, character):
         super(PlayerSprite, self).__init__(
-            corner, position, character, impassable='#X')
+            corner, position, character, impassable=BOXES + '#X')
 
     def update(self, actions, board, layers, backdrop, things, the_plot):
         """Moves the player and crosses bridges if possible."""
@@ -264,7 +267,7 @@ class BridgeBuildingEnv(pycolab_env.PyColabEnv):
     """Bridge building game."""
 
     def __init__(self, 
-                 level=0,
+                 level=1,
                  max_steps=10,
                  default_reward=0.):
         super(BridgeBuildingEnv, self).__init__(

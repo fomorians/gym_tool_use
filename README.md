@@ -13,41 +13,20 @@ $ (cd gym_tool_use; pip install -e .)
 
 ## Bridge Building
 
-<p align="center">
-    <img src="bridge_building.gif" alt="Bridge Building">
-</p>
+### `gym.make('BridgeBuilding-v{0,1,2,3,4}')`
 
-### `gym.make('BridgeBuilding-v{0,1,2}')`
+Creates a new bridge building game that generates random: 
 
-The first- and second- level (`v0`, `v1`)force agents to learn how to interact with the environment. The third level (`v2`) tests the ability of agents to use objects to alter the environment in order to accomplish the goal. Agents won't explicitly learn to use tools in the first- and second-levels (this is used as a training set), unless they learn the relationship between the box and the water. Only during evaluation is an agent supposed to use this learned relationship to accomplish the complicated task (you can think of it similar to sokoban)
++ Positions for the agent `P` to start (i.e. starts on either side of the water), adjacent to the farthest wall from the water `W`.
++ Positions for the goal `G` (i.e. starts on opposite side of `P`).
++ Positions for the `v{num_boxes - 1}` boxes. If `v4`, the number of boxes is random from `1:4`. Boxes are positioned 1 step away from the `P` towards the water `W`.
++ Rotations on the game.
 
-## Example:
-
-```python
-import gym
-import gym_tool_use
-
-env = gym.make('BridgeBuilding-v0')
-state = env.reset()
-total_reward = 0.
-env.render()
-
-actions = [0, 0, 0, 3, 3, 0, 3, 3, 0, 3, 3, 3]
-
-for action in actions:
-    _, reward, _, _ = env.step(action)
-    total_reward += reward
-    env.render()
-env.close()
-print('Total reward = {}'.format(total_reward))
-# >>> 1.
-```
+for each episode on the environment.
 
 ## Testing
 
-```sh
-$ python -m gym_tool_use.bridge_building_test
-```
+TODO(wenkesj).
 
 # Development
 
