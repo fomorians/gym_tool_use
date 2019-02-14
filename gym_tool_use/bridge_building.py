@@ -18,14 +18,15 @@ from gym_pycolab import pycolab_env
 # 2 1 3
 
 BRIDGE_BUILDING_TEMPLATE = [
-    '########', 
-    '#      #', 
-    '#      #', 
-    '#WWWWWW#',
-    '#      #', 
-    '#      #', 
-    '#      #', 
-    '########'
+    '#########',
+    '#       #', 
+    '#       #', 
+    '#       #', 
+    '#WWWWWWW#',
+    '#       #', 
+    '#       #', 
+    '#       #', 
+    '#########'
 ]
 
 GOAL_REWARD = 1.
@@ -43,10 +44,12 @@ BOX_COLORS = {box: (255, 255, 0) for box in BOXES}
 COLORS.update(BOX_COLORS)
 
 BOX_POSITIONS = [
-    [(2, y) for y in range(1, len(BRIDGE_BUILDING_TEMPLATE) - 1)],
     [(x, y) 
      for y in range(1, len(BRIDGE_BUILDING_TEMPLATE) - 1)
-     for x in range(4, 6)]
+     for x in range(2, 4)],
+    [(x, y) 
+     for y in range(1, len(BRIDGE_BUILDING_TEMPLATE) - 1)
+     for x in range(5, 7)]
 ]
 
 
@@ -59,34 +62,55 @@ def paint(art, positions, characters):
 
 # TODO(wenkesj): ensure boxes are not generated ontop of 
 # each other when there are is even number.
-def generate_art(num_boxes):
+def generate_art(num_boxes, 
+                 allow_random_sides=True,
+                 allow_random_box_positions=True,
+                 allow_random_goal_position=True,
+                 allow_random_player_position=True, 
+                 allow_random_rotations=True,
+                 np_random=np.random):
     """Generate art given the number of boxes."""
     if num_boxes == -1:
-        num_boxes = np.random.choice(3) + 1
+        num_boxes = np_random.choice(3) + 1
 
     assert num_boxes > 0 and num_boxes < 4, '0 > `num_boxes` or `num_boxes` > 3 ' 
+
     x_positions = [1, len(BRIDGE_BUILDING_TEMPLATE) - 2]
-    player_side, goal_side = np.random.choice(2, size=2, replace=False)
+    
+    if allow_random_sides:
+        player_side, goal_side = np_random.choice(2, size=2, replace=False)
+    else:
+        player_side, goal_side = 0, 1
 
     # Generate player position
-    player_position = (
-        x_positions[player_side], 
-        np.random.randint(1, len(BRIDGE_BUILDING_TEMPLATE) - 2))
-    
+    if allow_random_player_position:
+        player_y_position = np_random.randint(1, len(BRIDGE_BUILDING_TEMPLATE) - 1)
+    else:
+        player_y_position = len(BRIDGE_BUILDING_TEMPLATE) // 2
+    player_position = (x_positions[player_side], player_y_position)
+
     # Generate goal position
-    goal_position = (
-        x_positions[goal_side], 
-        np.random.randint(1, len(BRIDGE_BUILDING_TEMPLATE) - 2))
+    if allow_random_goal_position:
+        goal_y_position = np_random.randint(1, len(BRIDGE_BUILDING_TEMPLATE) - 1)
+    else:
+        goal_y_position = len(BRIDGE_BUILDING_TEMPLATE) // 2
+    goal_position = (x_positions[goal_side], goal_y_position)
 
     # Generate box positions
     box_side_positions = list(BOX_POSITIONS[player_side])
-    box_position_indices = np.random.choice(
-        len(box_side_positions), size=num_boxes, replace=False)
-    box_positions = [box_side_positions[box_position_index] 
-                     for box_position_index in box_position_indices]
+    
+    if allow_random_box_positions:
+        box_position_indices = np_random.choice(
+            len(box_side_positions), size=num_boxes, replace=False)
+        box_positions = [box_side_positions[box_position_index] 
+                        for box_position_index in box_position_indices]
 
-    # Assign random numbers to the boxes.
-    box_ids = np.random.choice(len(BOXES), size=num_boxes, replace=False)
+        # Assign random numbers to the boxes.
+        box_ids = np_random.choice(len(BOXES), size=num_boxes, replace=False)
+    else:
+        box_ids = list(range(num_boxes))
+        box_positions = [box_side_positions[box_position_index] 
+                        for box_position_index in box_ids]
 
     # Paint positions
     art = list(BRIDGE_BUILDING_TEMPLATE)
@@ -96,15 +120,31 @@ def generate_art(num_boxes):
     art = paint(art, box_positions, [str(box_id) for box_id in box_ids])
 
     # Random rotation
-    art = np.rot90(art, np.random.choice(4))
-    art = [''.join(row) for row in art.tolist()]
+    if allow_random_rotations:
+        art = np.rot90(art, np_random.choice(4))
+        art = art.tolist()
+    art = [''.join(row) for row in art]
     return art
 
 
-def make_game(level):
-    """Builds and returns a Bridge Building game for the selected level."""
-    bridge_building_art = generate_art(level)
-    sprites = {'P': PlayerSprite}
+def make_game(num_boxes, 
+              hydrophobic=True, 
+              allow_random_sides=True,
+              allow_random_box_positions=True,
+              allow_random_goal_position=True,
+              allow_random_player_position=True, 
+              allow_random_rotations=True,
+              np_random=np.random):
+    """Builds and returns a Bridge Building game for the selected num_boxes."""
+    bridge_building_art = generate_art(
+        num_boxes,
+        allow_random_sides=allow_random_sides,
+        allow_random_box_positions=allow_random_box_positions,
+        allow_random_goal_position=allow_random_goal_position,
+        allow_random_player_position=allow_random_player_position, 
+        allow_random_rotations=allow_random_rotations,
+        np_random=np_random)
+    sprites = {'P': player_sprite_factory(hydrophobic=hydrophobic)}
     box_sprites = {box: BoxSprite for box in BOXES}
     sprites.update(box_sprites)
     drapes = {'G': GoalDrape, 'W': WaterDrape}
@@ -198,10 +238,6 @@ class BoxSprite(prefab_sprites.MazeWalker):
 
 class PlayerSprite(prefab_sprites.MazeWalker):
 
-    def __init__(self, corner, position, character):
-        super(PlayerSprite, self).__init__(
-            corner, position, character, impassable=BOXES + '#X')
-
     def update(self, actions, board, layers, backdrop, things, the_plot):
         """Moves the player and crosses bridges if possible."""
         del backdrop  # Unused.
@@ -265,15 +301,40 @@ class PlayerSprite(prefab_sprites.MazeWalker):
             self._east(board, the_plot)
 
 
+def player_sprite_factory(hydrophobic=True):
+    class SpriteClass(PlayerSprite):
+        def __init__(self, corner, position, character):
+            super(SpriteClass, self).__init__(
+                corner, 
+                position, 
+                character, 
+                impassable=BOXES + '#X' + ('' if hydrophobic else 'W'))
+    return SpriteClass
+
+
 class BridgeBuildingEnv(pycolab_env.PyColabEnv):
     """Bridge building game."""
 
     def __init__(self, 
-                 level=1,
-                 max_steps=10,
-                 default_reward=0.):
+                 num_boxes=1,
+                 max_steps=15,
+                 default_reward=0.,
+                 hydrophobic=False,
+                 allow_random_sides=False,
+                 allow_random_box_positions=False,
+                 allow_random_goal_position=False,
+                 allow_random_player_position=False,
+                 allow_random_rotations=False):
         super(BridgeBuildingEnv, self).__init__(
-            game_factory=lambda: make_game(level),
+            game_factory=lambda: make_game(
+                num_boxes, 
+                hydrophobic=hydrophobic, 
+                allow_random_sides=allow_random_sides,
+                allow_random_box_positions=allow_random_box_positions,
+                allow_random_goal_position=allow_random_goal_position,
+                allow_random_player_position=allow_random_player_position,
+                allow_random_rotations=allow_random_rotations,
+                np_random=self.np_random if self.np_random else np.random),
             max_iterations=max_steps, 
             default_reward=default_reward,
             action_space=spaces.Discrete(4 + 1),
