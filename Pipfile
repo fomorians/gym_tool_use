@@ -4,8 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-# pycolab = "*"
-pycolab = {editable = true, git = "https://github.com/wenkesj/pycolab.git"}
+pycolab = "*"
 gym = "*"
 gym-pycolab = {editable = true, git = "https://github.com/fomorians/gym_pycolab.git"}
 
