@@ -3,3 +3,4 @@ from __future__ import division
 from __future__ import print_function
 
 from gym_tool_use.envs.bridge_building import BridgeBuildingEnv
+from gym_tool_use.envs.tool_use import ToolUseEnv
