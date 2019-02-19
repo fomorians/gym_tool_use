@@ -126,7 +126,7 @@ class PlayerSprite(prefab_sprites.MazeWalker):
                         if can_cross_bridge:  # cross the bridge?
                             self._teleport((self.virtual_position[0] - 2, 
                                             self.virtual_position[1] + 0))
-                            the_plot['moved_across_bridge'] = 1
+                            the_plot.info['moved_across_bridge'] = 1
                         else:
                             self._stay(board, the_plot)
                         return
@@ -141,7 +141,7 @@ class PlayerSprite(prefab_sprites.MazeWalker):
                         if can_cross_bridge:  # cross the bridge?
                             self._teleport((self.virtual_position[0] + 2, 
                                             self.virtual_position[1] + 0))
-                            the_plot['moved_across_bridge'] = 1
+                            the_plot.info['moved_across_bridge'] = 1
                         else:
                             self._stay(board, the_plot)
                         return
@@ -156,7 +156,7 @@ class PlayerSprite(prefab_sprites.MazeWalker):
                         if can_cross_bridge:  # cross the bridge?
                             self._teleport((self.virtual_position[0] + 0, 
                                             self.virtual_position[1] - 2))
-                            the_plot['moved_across_bridge'] = 1
+                            the_plot.info['moved_across_bridge'] = 1
                         else:
                             self._stay(board, the_plot)
                         return
@@ -171,7 +171,7 @@ class PlayerSprite(prefab_sprites.MazeWalker):
                         if can_cross_bridge:  # cross the bridge?
                             self._teleport((self.virtual_position[0] + 0, 
                                             self.virtual_position[1] + 2))
-                            the_plot['moved_across_bridge'] = 1
+                            the_plot.info['moved_across_bridge'] = 1
                         else:
                             self._stay(board, the_plot)
                         return

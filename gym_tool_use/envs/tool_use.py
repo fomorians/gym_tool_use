@@ -96,7 +96,8 @@ if __name__ == "__main__":
         toolsets=[toolsets.BridgeBuildingToolSet(4)])
     env.reset()
     env.render()
-    for action in [s, a, s, a, w]:
-        env.step(action)
+    for action in [s, a, s, a, w, w]:
+        _, _, _, info = env.step(action)
+        print(info)
         env.render()
     env.close()
