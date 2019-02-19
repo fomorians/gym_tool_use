@@ -89,7 +89,14 @@ class ToolUseEnv(pycolab_env.PyColabEnv):
 
 
 if __name__ == "__main__":
-    env = ToolUseEnv()
+    w,d,a,s = 0,3,2,1
+
+    np.random.seed(42)
+    env = ToolUseEnv(
+        toolsets=[toolsets.BridgeBuildingToolSet(4)])
     env.reset()
     env.render()
+    for action in [s, a, s, a, w]:
+        env.step(action)
+        env.render()
     env.close()

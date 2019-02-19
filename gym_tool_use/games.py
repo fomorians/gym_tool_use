@@ -18,7 +18,8 @@ def make_tool_use_game(art):
 
     # Include tools.
     water_box_sprites = {box: tool_sprites.WaterBoxSprite for box in utils.WATER_BOXES}
-    box_sprites = {box: tool_sprites.BoxSprite for box in utils.BOXES}
+    box_sprites = {box: tool_sprites.BoxSprite 
+                   for box in (set(utils.BOXES) - set(utils.WATER_BOXES))}
     sprites.update(water_box_sprites)
     sprites.update(box_sprites)
 

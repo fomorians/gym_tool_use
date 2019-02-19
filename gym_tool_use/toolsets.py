@@ -22,7 +22,7 @@ class BridgeBuildingToolSet(ToolSet):
 
     def __init__(self, num_interactions):
         super(BridgeBuildingToolSet, self).__init__()
-        assert num_interactions <= 3 or num_interactions >= 0
+        assert num_interactions <= 4 or num_interactions >= 0
         self.num_interactions = num_interactions
 
     def paint(self, art, player_position, goal_position, all_positions, np_random=np.random):

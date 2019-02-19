@@ -9,8 +9,8 @@ import collections
 from gym import spaces
 
 
-WATER_BOXES = '123'
-BOXES = '1234567890'
+WATER_BOXES = '0123'
+BOXES = '0123' # + '456789'
 COLORS = {
     'G': (255,   0,   0),
     'P': (  0, 255,   0),
