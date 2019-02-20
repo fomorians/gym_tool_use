@@ -70,13 +70,13 @@ def generate_bridge_building_art(num_boxes, np_random=np.random):
 class BridgeBuildingEnv(pycolab_env.PyColabEnv):
     """Bridge building game."""
 
-    def __init__(self):
+    def __init__(self, max_iterations=20):
         self.np_random = None
         super(BridgeBuildingEnv, self).__init__(
             game_factory=lambda: games.make_tool_use_game(
                 generate_bridge_building_art(
                     1, self.np_random if self.np_random else np.random)),
-            max_iterations=20, 
+            max_iterations=max_iterations, 
             default_reward=0.,
             action_space=utils.ACTION_SPACE,
             resize_scale=32,

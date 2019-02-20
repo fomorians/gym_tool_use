@@ -72,7 +72,7 @@ def generate_tool_use_art(toolsets, np_random=np.random):
 class ToolUseEnv(pycolab_env.PyColabEnv):
     """Tool-use 'practice' game."""
 
-    def __init__(self, toolsets=[toolsets.BridgeBuildingToolSet(3)]):
+    def __init__(self, toolsets=[toolsets.BridgeBuildingToolSet(3)], max_iterations=20):
         toolsets = set(toolsets)
         self.np_random = None
         super(ToolUseEnv, self).__init__(
@@ -80,7 +80,7 @@ class ToolUseEnv(pycolab_env.PyColabEnv):
                 generate_tool_use_art(
                     toolsets, 
                     self.np_random if self.np_random else np.random)),
-            max_iterations=20, 
+            max_iterations=max_iterations, 
             default_reward=0.,
             action_space=utils.ACTION_SPACE,
             resize_scale=32,
@@ -96,8 +96,8 @@ if __name__ == "__main__":
         toolsets=[toolsets.BridgeBuildingToolSet(4)])
     env.reset()
     env.render()
-    for action in [s, a, s, a, w, w]:
-        _, _, _, info = env.step(action)
-        print(info)
+    for action in [s, s, a, w, d, w, a, a]:
+        _, reward, _, info = env.step(action)
+        print(reward)
         env.render()
     env.close()
