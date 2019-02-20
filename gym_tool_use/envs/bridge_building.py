@@ -23,32 +23,33 @@ BRIDGE_BUILDING_TEMPLATE = [
     '#       #', 
     '#########'
 ]
-WATER_BOX_POSITIONS = [
-    (x, y) 
-    for y in range(1, len(BRIDGE_BUILDING_TEMPLATE) - 1)
-    for x in range(2, 4)]
 
 
 def generate_bridge_building_art(num_boxes, np_random=np.random):
     """Generate bridge building art."""
 
-    assert num_boxes < 10, '`num_boxes` must be less than 10.'
+    assert num_boxes < 4, '`num_boxes` must be less than 4.'
     assert (num_boxes % 2) != 0, '`num_boxes` must be odd.'
 
     x_positions = [1, len(BRIDGE_BUILDING_TEMPLATE) - 2]
-
     player_side, goal_side = 0, 1
+    c_l, c_r = 2, len(BRIDGE_BUILDING_TEMPLATE) - 2
 
     # Generate player position
-    player_y_position = np_random.randint(1, len(BRIDGE_BUILDING_TEMPLATE) - 1)
+    player_y_position = np_random.randint(c_l, c_r)
     player_position = (x_positions[player_side], player_y_position)
 
     # Generate goal position
-    goal_y_position = np_random.randint(1, len(BRIDGE_BUILDING_TEMPLATE) - 1)
+    goal_y_position = np_random.randint(c_l, c_r)
     goal_position = (x_positions[goal_side], goal_y_position)
 
-    # Generate box positions
-    box_side_positions = list(WATER_BOX_POSITIONS)
+    # Generate box positions out of the shortest path.
+    c_l_range = list(range(c_l - 1, min(player_y_position, goal_y_position)))
+    c_r_range = list(range(max(player_y_position, goal_y_position) + 1, c_r + 1))
+    box_side_positions = [
+        (x, y)
+        for x in list(range(2, 4))
+        for y in c_l_range + c_r_range]
     box_position_indices = np_random.choice(
         len(box_side_positions), size=num_boxes, replace=False)
     box_positions = [box_side_positions[box_position_index] 
