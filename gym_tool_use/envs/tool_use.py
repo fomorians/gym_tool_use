@@ -84,6 +84,7 @@ class ToolUseEnv(pycolab_env.PyColabEnv):
             default_reward=0.,
             action_space=utils.ACTION_SPACE,
             resize_scale=32,
+            observation_type='labels',
             delay=200,
             colors=utils.COLORS)
 
@@ -97,7 +98,7 @@ if __name__ == "__main__":
     env.reset()
     env.render()
     for action in [s, s, a, w, d, w, a, a]:
-        _, reward, _, info = env.step(action)
-        print(reward)
+        state, reward, _, info = env.step(action)
+        print(state)
         env.render()
     env.close()
