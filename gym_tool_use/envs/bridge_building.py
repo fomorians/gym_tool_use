@@ -81,12 +81,14 @@ class BridgeBuildingEnv(pycolab_env.PyColabEnv):
             default_reward=0.,
             action_space=utils.ACTION_SPACE,
             resize_scale=32,
+            observation_type='labels',
             delay=200,
             colors=utils.COLORS)
 
 
 if __name__ == "__main__":
     env = BridgeBuildingEnv()
-    env.reset()
+    state = env.reset()
+    print(state)
     env.render()
     env.close()
