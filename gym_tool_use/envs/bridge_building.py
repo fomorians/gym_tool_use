@@ -71,7 +71,7 @@ def generate_bridge_building_art(num_boxes, np_random=np.random):
 class BridgeBuildingEnv(pycolab_env.PyColabEnv):
     """Bridge building game."""
 
-    def __init__(self, max_iterations=20):
+    def __init__(self, observation_type='labels', max_iterations=20):
         self.np_random = None
         super(BridgeBuildingEnv, self).__init__(
             game_factory=lambda: games.make_tool_use_game(
@@ -81,14 +81,14 @@ class BridgeBuildingEnv(pycolab_env.PyColabEnv):
             default_reward=0.,
             action_space=utils.ACTION_SPACE,
             resize_scale=32,
-            observation_type='labels',
+            observation_type=observation_type,
             delay=200,
             colors=utils.COLORS)
 
 
 if __name__ == "__main__":
-    env = BridgeBuildingEnv()
+    env = BridgeBuildingEnv(observation_type='rgb')
     state = env.reset()
-    print(state)
+    print(state.shape)
     env.render()
     env.close()
