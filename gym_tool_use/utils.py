@@ -20,7 +20,7 @@ COLORS = {
 BOX_COLORS = {box: (255, 255, 0) for box in BOXES}
 COLORS.update(BOX_COLORS)
 
-ACTION_SPACE = spaces.Discrete(4 + 1)
+ACTION_SPACE = spaces.Discrete(4)
 
 
 def bfs(grid, start, width, height):
