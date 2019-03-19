@@ -14,13 +14,7 @@ class WaterDrape(plab_things.Drape):
 
     def update(self, actions, board, layers, backdrop, things, the_plot):
         """Prevent player from moving through water."""
-        player = things['P']
-        row, col = player.position
-
-        # End the episode if the agent is on the water tile.
-        if self.curtain[player.position]:
-            the_plot.add_reward(-1.)
-            the_plot.terminate_episode()
+        pass
 
 
 class GoalDrape(plab_things.Drape):

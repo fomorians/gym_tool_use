@@ -4,6 +4,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import numpy as np
+
 from pycolab.prefab_parts import sprites as prefab_sprites
 
 from gym_tool_use import utils
@@ -93,8 +95,12 @@ class WaterBoxSprite(BoxSprite):
         rows, cols = self.position
 
         # Don't move if already in water.
+        # Allow the agent to move across me now.
         if layers['W'][rows, cols]:
             self._stay(board, the_plot)
+            if 'P' in self._impassable:
+                self._impassable.remove('P')
+                things['P']._impassable.remove(self.character)
             return
 
         super(WaterBoxSprite, self).update(
@@ -111,102 +117,34 @@ class PlayerSprite(prefab_sprites.MazeWalker):
             character, 
             utils.BOXES + '#XW')
 
+    def _on_bridge(self, things):
+        for box in utils.WATER_BOXES:
+            is_on_bridge = np.logical_and(
+                things[box].position == (self.position[0], self.position[1]), 
+                things['W'].curtain[self.position[0], self.position[1]])
+            if is_on_bridge:
+                return True
+        return False
+
     def update(self, actions, board, layers, backdrop, things, the_plot):
         """Handles player logic."""
         del backdrop  # Unused.
-
+        
+        was_on_bridge = self._on_bridge(things)
         rows, cols = self.position
         if actions == 0:    # go upward?
-            if (rows - 1) > 0:
-                for box in utils.WATER_BOXES:
-                    box_is_north = things[box].position == (rows - 1, cols)
-                    water_is_north = things['W'].curtain[rows - 1, cols]
-                    
-                    can_cross_bridge = False
-                    if (rows - 2) > 0:
-                        can_cross_bridge = True
-                        for impassable in self.impassable:
-                            if impassable in layers:
-                                can_cross_bridge &= not layers[impassable][rows - 2, cols]
-
-                    if box_is_north and water_is_north:
-                        if can_cross_bridge:  # cross the bridge?
-                            self._teleport((self.virtual_position[0] - 2, 
-                                            self.virtual_position[1] + 0))
-                            the_plot.info['moved_across_bridge'] = 1
-                        else:
-                            self._stay(board, the_plot)
-                        return
-
             self._north(board, the_plot)
         elif actions == 1:  # go downward?
-            if (rows + 1) < board.shape[0]:
-                for box in utils.WATER_BOXES:
-                    box_is_south = things[box].position == (rows + 1, cols)
-                    water_is_south = things['W'].curtain[rows + 1, cols]
-
-                    can_cross_bridge = False
-                    if (rows + 2) < board.shape[0]:
-                        can_cross_bridge = True
-                        for impassable in self.impassable:
-                            if impassable in layers:
-                                can_cross_bridge &= not layers[impassable][rows + 2, cols]
-
-                    if box_is_south and water_is_south:
-                        if can_cross_bridge:  # cross the bridge?
-                            self._teleport((self.virtual_position[0] + 2, 
-                                            self.virtual_position[1] + 0))
-                            the_plot.info['moved_across_bridge'] = 1
-                        else:
-                            self._stay(board, the_plot)
-                        return
-
             self._south(board, the_plot)
         elif actions == 2:  # go leftward?
-            if (cols - 1) > 0:
-                for box in utils.WATER_BOXES:
-                    box_is_west = things[box].position == (rows, cols - 1)
-                    water_is_west = things['W'].curtain[rows, cols - 1]
-
-                    can_cross_bridge = False
-                    if (cols - 2) > 0:
-                        can_cross_bridge = True
-                        for impassable in self.impassable:
-                            if impassable in layers:
-                                can_cross_bridge &= not layers[impassable][rows, cols - 2]
-
-                    if box_is_west and water_is_west:  
-                        if can_cross_bridge:  # cross the bridge?
-                            self._teleport((self.virtual_position[0] + 0, 
-                                            self.virtual_position[1] - 2))
-                            the_plot.info['moved_across_bridge'] = 1
-                        else:
-                            self._stay(board, the_plot)
-                        return
-
             self._west(board, the_plot)
         elif actions == 3:  # go rightward?
-            if (cols + 1) < board.shape[1]:
-                for box in utils.WATER_BOXES:
-                    box_is_east = things[box].position == (rows, cols + 1)
-                    water_is_east = things['W'].curtain[rows, cols + 1]
-
-                    can_cross_bridge = False
-                    if (cols + 2) < board.shape[1]:
-                        can_cross_bridge = True
-                        for impassable in self.impassable:
-                            if impassable in layers:
-                                can_cross_bridge &= not layers[impassable][rows, cols + 2]
-
-                    if box_is_east and water_is_east:  
-                        if can_cross_bridge:  # cross the bridge?
-                            self._teleport((self.virtual_position[0] + 0, 
-                                            self.virtual_position[1] + 2))
-                            the_plot.info['moved_across_bridge'] = 1
-                        else:
-                            self._stay(board, the_plot)
-                        return
-
             self._east(board, the_plot)
         else:
             self._stay(board, the_plot)
+
+        is_on_bridge = self._on_bridge(things)
+        if was_on_bridge and not is_on_bridge:
+            the_plot.info['moved_across_bridge'] = 1
+        elif is_on_bridge:
+            the_plot.info['stayed_on_bridge'] = 1

@@ -87,8 +87,20 @@ class BridgeBuildingEnv(pycolab_env.PyColabEnv):
 
 
 if __name__ == "__main__":
-    env = BridgeBuildingEnv(observation_type='rgb')
-    state = env.reset()
-    print(state.shape)
+    np.random.seed(42)
+    env = BridgeBuildingEnv(observation_type='layers')
+    env.seed(42)
+    env.reset()
+    for action in [2, 2, 1, 1, 1, 1, 0, 0]:
+        env.render()
+        env.step(action)
+    env.render()
+    env.close()
+    env = BridgeBuildingEnv(observation_type='layers')
+    env.seed(42)
+    env.reset()
+    for action in [2, 2, 2, 1, 1, 1, 1, 1, 1, 0, 0, 0, 3, 0]:
+        env.render()
+        env.step(action)
     env.render()
     env.close()
