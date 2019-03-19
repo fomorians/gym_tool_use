@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 pycolab = "*"
 gym = "*"
-# gym-pycolab = {editable = true, path = "../gym_pycolab"}
 gym-pycolab = {editable = true, git = "https://github.com/fomorians/gym_pycolab.git"}
 
 [dev-packages]
