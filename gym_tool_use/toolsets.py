@@ -32,7 +32,7 @@ class BridgeBuildingToolSet(ToolSet):
             size=self.num_interactions, 
             replace=False)
 
-        # shallow copy positions to remove edges.
+        # copy positions to remove edges.
         allowed_positions = list(all_positions)
         edge_range = list(range(1, n - 1))
         low_range = [1] * len(edge_range)
@@ -45,6 +45,7 @@ class BridgeBuildingToolSet(ToolSet):
             if coordinate in allowed_positions:
                 allowed_positions.remove(coordinate)
 
+        # TODO(wenkesj): add option for allowing bridge building to exist in path.
         for box_id in box_ids:
             water_position = allowed_positions.pop()
             box_position = allowed_positions.pop()

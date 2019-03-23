@@ -15,12 +15,13 @@ class BoxSprite(prefab_sprites.MazeWalker):
     """Base box sprite."""
 
     def __init__(self, corner, position, character, extra_impassibles='W'):
-        impassable = set(utils.BOXES + '#PGBX' + extra_impassibles) - set(character)
+        impassable = set(utils.BOXES + 'PGB' + extra_impassibles) - set(character)
         super(BoxSprite, self).__init__(
             corner, 
             position, 
             character, 
-            impassable)
+            impassable,
+            confined_to_board=True)
 
         # Remove the boxes that aren't on the map.
         if position == (0, 0):
@@ -115,7 +116,8 @@ class PlayerSprite(prefab_sprites.MazeWalker):
             corner, 
             position, 
             character, 
-            utils.BOXES + '#XW')
+            utils.BOXES + 'W',
+            confined_to_board=True)
 
     def _on_bridge(self, things):
         for box in utils.WATER_BOXES:

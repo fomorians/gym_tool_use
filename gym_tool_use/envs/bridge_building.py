@@ -13,15 +13,14 @@ from gym_tool_use import utils
 
 
 BRIDGE_BUILDING_TEMPLATE = [
-    '#########',
-    '#       #', 
-    '#       #', 
-    '#       #', 
-    '#WWWWWWW#',
-    '#       #', 
-    '#       #', 
-    '#       #', 
-    '#########'
+    '        ',
+    '        ', 
+    '        ', 
+    '        ', 
+    'WWWWWWWW',  # TODO(wenkesj): draw different water formations.
+    '        ', 
+    '        ', 
+    '        ',
 ]
 
 
@@ -71,7 +70,8 @@ def generate_bridge_building_art(num_boxes, np_random=np.random):
 class BridgeBuildingEnv(pycolab_env.PyColabEnv):
     """Bridge building game."""
 
-    def __init__(self, observation_type='labels', max_iterations=20):
+    def __init__(self, observation_type='layers', max_iterations=20):
+        merge_layer_groups = [set([str(box) for box in range(len(utils.WATER_BOXES))])]
         self.np_random = None
         super(BridgeBuildingEnv, self).__init__(
             game_factory=lambda: games.make_tool_use_game(
@@ -83,24 +83,24 @@ class BridgeBuildingEnv(pycolab_env.PyColabEnv):
             resize_scale=32,
             observation_type=observation_type,
             delay=200,
-            colors=utils.COLORS)
+            colors=utils.COLORS,
+            exclude_from_state=set([' ']),
+            merge_layer_groups=merge_layer_groups)
 
 
 if __name__ == "__main__":
     np.random.seed(42)
     env = BridgeBuildingEnv(observation_type='layers')
+    print(env._observation_order)
     env.seed(42)
-    env.reset()
-    for action in [2, 2, 1, 1, 1, 1, 0, 0]:
+    for _ in range(10):
+        state = env.reset()
+        print(env._observation_order)
+        print(state.shape)
+        print(state[:, :, 0])
+        for action in [1, 2, 2, 2, 2, 2, 2]:
+            env.render()
+            state, _, _, _ = env.step(action)
+            print(state[:, :, 0])
         env.render()
-        env.step(action)
-    env.render()
-    env.close()
-    env = BridgeBuildingEnv(observation_type='layers')
-    env.seed(42)
-    env.reset()
-    for action in [2, 2, 2, 1, 1, 1, 1, 1, 1, 0, 0, 0, 3, 0]:
-        env.render()
-        env.step(action)
-    env.render()
     env.close()

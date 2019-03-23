@@ -15,8 +15,18 @@ register(
     entry_point='gym_tool_use.envs.tool_use:ToolUseEnv',
     kwargs=dict(
         toolsets=[toolsets.BridgeBuildingToolSet(3)], 
+        allow_obstacles_in_shortest_path=False,
         observation_type='layers',
         max_iterations=20))
+register(
+    id='ToolUse-v1',
+    entry_point='gym_tool_use.envs.tool_use:ToolUseEnv',
+    kwargs=dict(
+        toolsets=[toolsets.BridgeBuildingToolSet(3)], 
+        allow_obstacles_in_shortest_path=True,
+        observation_type='layers',
+        max_iterations=20))
+
 
 register(
     id='BridgeBuilding-v0',
