@@ -2,5 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from gym_tool_use import envs
-from gym_tool_use import toolsets
+from gym_tool_use.toolset import ToolSet
+from gym_tool_use.bridge_building_toolset import BridgeBuildingToolSet
+from gym_tool_use.tool_use_env import ToolUseEnv
+from gym_tool_use.bridge_building_env import BridgeBuildingEnv

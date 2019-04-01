@@ -1,4 +1,17 @@
-"""The Bridge Building environment."""
+"""The Bridge Building Environment.
+
+In this environment, water and boxes can exist on the edge of the 
+game.
+
+The agent always starts at the top (row 1), and the goal is on the 
+bottom (row last-1).
+
+A box will spawn in +1 or +2 rows from the agent, but can not spawn 
+in the columns between the agent and the goal.
+
+A natural 'river' (water in all columns) exists +3 rows 
+from the agent.
+"""
 
 from __future__ import absolute_import
 from __future__ import division
@@ -13,11 +26,11 @@ from gym_tool_use import utils
 
 
 BRIDGE_BUILDING_TEMPLATE = [
-    '        ',
     '        ', 
     '        ', 
     '        ', 
-    'WWWWWWWW',  # TODO(wenkesj): draw different water formations.
+    '        ', 
+    'WWWWWWWW',
     '        ', 
     '        ', 
     '        ',
@@ -26,21 +39,19 @@ BRIDGE_BUILDING_TEMPLATE = [
 
 def generate_bridge_building_art(num_boxes, np_random=np.random):
     """Generate bridge building art."""
-
-    assert num_boxes < 4, '`num_boxes` must be less than 4.'
-    assert (num_boxes % 2) != 0, '`num_boxes` must be odd.'
-
     x_positions = [1, len(BRIDGE_BUILDING_TEMPLATE) - 2]
     player_side, goal_side = 0, 1
     c_l, c_r = 2, len(BRIDGE_BUILDING_TEMPLATE) - 2
 
     # Generate player position
     player_y_position = np_random.randint(c_l, c_r)
-    player_position = (x_positions[player_side], player_y_position)
+    player_x_position = x_positions[player_side]
+    player_position = (player_x_position, player_y_position)
 
     # Generate goal position
     goal_y_position = np_random.randint(c_l, c_r)
-    goal_position = (x_positions[goal_side], goal_y_position)
+    goal_x_position = x_positions[goal_side]
+    goal_position = (goal_x_position, goal_y_position)
 
     # Generate box positions out of the shortest path.
     c_l_range = list(range(c_l - 1, min(player_y_position, goal_y_position)))
@@ -60,11 +71,13 @@ def generate_bridge_building_art(num_boxes, np_random=np.random):
     # Paint positions
     art = list(BRIDGE_BUILDING_TEMPLATE)
     art = [list(row) for row in art]
+    what_lies_beneath = [[' '] * len(row) for row in art]
     art = utils.paint(art, [player_position], ['P'])
     art = utils.paint(art, [goal_position], ['G'])
     art = utils.paint(art, box_positions, [str(box_id) for box_id in box_ids])
     art = [''.join(row) for row in art]
-    return art
+    what_lies_beneath = [''.join(row) for row in what_lies_beneath]
+    return art, what_lies_beneath, {}
 
 
 class BridgeBuildingEnv(pycolab_env.PyColabEnv):
@@ -75,7 +88,7 @@ class BridgeBuildingEnv(pycolab_env.PyColabEnv):
         self.np_random = None
         super(BridgeBuildingEnv, self).__init__(
             game_factory=lambda: games.make_tool_use_game(
-                generate_bridge_building_art(
+                *generate_bridge_building_art(
                     1, self.np_random if self.np_random else np.random)),
             max_iterations=max_iterations, 
             default_reward=0.,

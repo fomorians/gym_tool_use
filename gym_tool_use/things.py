@@ -33,5 +33,6 @@ class GoalDrape(plab_things.Drape):
             self.curtain[player.position] = False
 
         # End the episode if all goals have been reached.
+        # In most cases, there is only one goal.
         if np.sum(self.curtain) == 0.:
             the_plot.terminate_episode()

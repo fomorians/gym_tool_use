@@ -14,8 +14,8 @@ from gym_tool_use import utils
 class BoxSprite(prefab_sprites.MazeWalker):
     """Base box sprite."""
 
-    def __init__(self, corner, position, character, extra_impassibles='W'):
-        impassable = set(utils.BOXES + 'PGB' + extra_impassibles) - set(character)
+    def __init__(self, corner, position, character):
+        impassable = set(utils.BOXES + 'PGB') - set(character)
         super(BoxSprite, self).__init__(
             corner, 
             position, 
@@ -29,6 +29,7 @@ class BoxSprite(prefab_sprites.MazeWalker):
 
     def update(self, actions, board, layers, backdrop, things, the_plot):
         """Move boxes around."""
+        del backdrop  # Unused.
         rows, cols = self.position
 
         if actions == 0:    # go upward?
@@ -84,13 +85,6 @@ class BoxSprite(prefab_sprites.MazeWalker):
 class WaterBoxSprite(BoxSprite):
     """Water box."""
 
-    def __init__(self, corner, position, character):
-        super(WaterBoxSprite, self).__init__(
-            corner, 
-            position, 
-            character, 
-            extra_impassibles='')
-
     def update(self, actions, board, layers, backdrop, things, the_plot):
         """Fill water spaces to create bridges."""
         rows, cols = self.position
@@ -130,8 +124,8 @@ class PlayerSprite(prefab_sprites.MazeWalker):
 
     def update(self, actions, board, layers, backdrop, things, the_plot):
         """Handles player logic."""
-        del backdrop  # Unused.
-        
+        del backdrop, layers  # Unused.
+
         was_on_bridge = self._on_bridge(things)
         rows, cols = self.position
         if actions == 0:    # go upward?

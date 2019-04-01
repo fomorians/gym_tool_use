@@ -11,8 +11,19 @@ from gym_tool_use import things as tool_things
 from gym_tool_use import utils
 
 
-def make_tool_use_game(art):
-    """Builds and returns a tool use."""
+def make_tool_use_game(art, what_lies_beneath, prefill_positions):
+    """Builds and returns a tool use.
+
+    Args:
+        art: the art of the game.
+        what_lies_beneath: the art underneath the art.
+        prefill_positions: dictionary mapping character (`Drape`) 
+            to positions.
+
+    Returns:
+        a new game.
+    """
+
     # Include player.
     sprites = {'P': tool_sprites.PlayerSprite}
 
@@ -24,12 +35,21 @@ def make_tool_use_game(art):
     sprites.update(box_sprites)
 
     # Include the goal and water.
-    drapes = {'G': tool_things.GoalDrape, 'W': tool_things.WaterDrape}
-    return ascii_art.ascii_art_to_game(
+    drapes = {
+        'G': tool_things.GoalDrape, 
+        'W': tool_things.WaterDrape}
+    game = ascii_art.ascii_art_to_game(
         art, 
-        ' ', 
+        what_lies_beneath, 
         sprites, 
         drapes,
         update_schedule=[list(utils.BOXES)] + [['P'], ['W'], ['G']],
         z_order=['G', 'W'] + list(utils.BOXES) + ['P'],
-        occlusion_in_layers=False)  # This allows anything to exist underneath.
+        occlusion_in_layers=False)  # This allows layered representation.
+
+    for character, positions in prefill_positions.items():
+        layer = game._sprites_and_drapes[character]
+        for position in positions:
+            layer.curtain[position] = True
+
+    return game
