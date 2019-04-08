@@ -15,12 +15,11 @@ class BoxSprite(prefab_sprites.MazeWalker):
     """Base box sprite."""
 
     def __init__(self, corner, position, character):
-        impassable = set(utils.BOXES + 'PGB') - set(character)
         super(BoxSprite, self).__init__(
             corner, 
             position, 
             character, 
-            impassable,
+            set(utils.BOXES + 'PGB') - set(character),
             confined_to_board=True)
 
         # Remove the boxes that aren't on the map.
@@ -42,6 +41,9 @@ class BoxSprite(prefab_sprites.MazeWalker):
                     new_rows, new_cols = self.position
                     if layers['W'][new_rows, new_cols]:
                         the_plot.info['moved_box_into_water'] = 1
+                        self._teleport((-1, -1))
+                        things['W'].curtain[new_rows, new_cols] = False
+                        things['B'].curtain[new_rows, new_cols] = True
             else:
                 self._stay(board, the_plot)
         elif actions == 1:  # go downward?
@@ -54,6 +56,9 @@ class BoxSprite(prefab_sprites.MazeWalker):
                     new_rows, new_cols = self.position
                     if layers['W'][new_rows, new_cols]:
                         the_plot.info['moved_box_into_water'] = 1
+                        self._teleport((-1, -1))
+                        things['W'].curtain[new_rows, new_cols] = False
+                        things['B'].curtain[new_rows, new_cols] = True
             else:
                 self._stay(board, the_plot)
         elif actions == 2:  # go leftward?
@@ -66,6 +71,9 @@ class BoxSprite(prefab_sprites.MazeWalker):
                     new_rows, new_cols = self.position
                     if layers['W'][new_rows, new_cols]:
                         the_plot.info['moved_box_into_water'] = 1
+                        self._teleport((-1, -1))
+                        things['W'].curtain[new_rows, new_cols] = False
+                        things['B'].curtain[new_rows, new_cols] = True
             else:
                 self._stay(board, the_plot)
         elif actions == 3:  # go rightward?
@@ -78,28 +86,11 @@ class BoxSprite(prefab_sprites.MazeWalker):
                     new_rows, new_cols = self.position
                     if layers['W'][new_rows, new_cols]:
                         the_plot.info['moved_box_into_water'] = 1
+                        self._teleport((-1, -1))
+                        things['W'].curtain[new_rows, new_cols] = False
+                        things['B'].curtain[new_rows, new_cols] = True
             else:
                 self._stay(board, the_plot)
-
-
-class WaterBoxSprite(BoxSprite):
-    """Water box."""
-
-    def update(self, actions, board, layers, backdrop, things, the_plot):
-        """Fill water spaces to create bridges."""
-        rows, cols = self.position
-
-        # Don't move if already in water.
-        # Allow the agent to move across me now.
-        if layers['W'][rows, cols]:
-            self._stay(board, the_plot)
-            if 'P' in self._impassable:
-                self._impassable.remove('P')
-                things['P']._impassable.remove(self.character)
-            return
-
-        super(WaterBoxSprite, self).update(
-            actions, board, layers, backdrop, things, the_plot)
 
 
 class PlayerSprite(prefab_sprites.MazeWalker):
@@ -113,20 +104,12 @@ class PlayerSprite(prefab_sprites.MazeWalker):
             utils.BOXES + 'W',
             confined_to_board=True)
 
-    def _on_bridge(self, things):
-        for box in utils.WATER_BOXES:
-            is_on_bridge = np.logical_and(
-                things[box].position == (self.position[0], self.position[1]), 
-                things['W'].curtain[self.position[0], self.position[1]])
-            if is_on_bridge:
-                return True
-        return False
-
     def update(self, actions, board, layers, backdrop, things, the_plot):
         """Handles player logic."""
         del backdrop, layers  # Unused.
 
-        was_on_bridge = self._on_bridge(things)
+        was_on_bridge = things['B'].curtain[self.position[0], self.position[1]]
+
         rows, cols = self.position
         if actions == 0:    # go upward?
             self._north(board, the_plot)
@@ -139,7 +122,7 @@ class PlayerSprite(prefab_sprites.MazeWalker):
         else:
             self._stay(board, the_plot)
 
-        is_on_bridge = self._on_bridge(things)
+        is_on_bridge = things['B'].curtain[self.position[0], self.position[1]]
         if was_on_bridge and not is_on_bridge:
             the_plot.info['moved_across_bridge'] = 1
         elif is_on_bridge:

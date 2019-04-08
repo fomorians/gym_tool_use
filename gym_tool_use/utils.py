@@ -9,17 +9,9 @@ import collections
 from gym import spaces
 
 
-WATER_BOXES = '01234'
-BOXES = '01234' # + '56789'
-COLORS = {
-    'G': (255,   0,   0),
-    'P': (  0, 255,   0),
-    'W': (  0,   0, 255),
-    '#': (  0, 255, 255),
-}
-BOX_COLORS = {box: (255, 255, 0) for box in BOXES}
-COLORS.update(BOX_COLORS)
-
+BOXES = '0'
+CHARACTERS = ['G', 'P', 'W', 'B', ' '] + list(BOXES)
+CHARACTERS_NO_G_OR_P = ['W', 'B', ' '] + list(BOXES)
 ACTION_SPACE = spaces.Discrete(4)
 
 

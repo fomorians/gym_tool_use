@@ -21,30 +21,28 @@ def make_tool_use_game(art, what_lies_beneath, prefill_positions):
             to positions.
 
     Returns:
-        a new game.
+        a new game
     """
 
     # Include player.
     sprites = {'P': tool_sprites.PlayerSprite}
 
     # Include tools.
-    water_box_sprites = {box: tool_sprites.WaterBoxSprite for box in utils.WATER_BOXES}
-    box_sprites = {box: tool_sprites.BoxSprite 
-                   for box in (set(utils.BOXES) - set(utils.WATER_BOXES))}
-    sprites.update(water_box_sprites)
+    box_sprites = {box: tool_sprites.BoxSprite for box in utils.BOXES}
     sprites.update(box_sprites)
 
-    # Include the goal and water.
+    # Include the goal, water, and bridge.
     drapes = {
         'G': tool_things.GoalDrape, 
-        'W': tool_things.WaterDrape}
+        'W': tool_things.WaterDrape,
+        'B': tool_things.BridgeDrape}
     game = ascii_art.ascii_art_to_game(
         art, 
         what_lies_beneath, 
         sprites, 
         drapes,
-        update_schedule=[list(utils.BOXES)] + [['P'], ['W'], ['G']],
-        z_order=['G', 'W'] + list(utils.BOXES) + ['P'],
+        update_schedule=[list(utils.BOXES)] + [['P'], ['W'], ['B'], ['G']],
+        z_order=['G', 'W'] + list(utils.BOXES) + ['B', 'P'],
         occlusion_in_layers=False)  # This allows layered representation.
 
     for character, positions in prefill_positions.items():

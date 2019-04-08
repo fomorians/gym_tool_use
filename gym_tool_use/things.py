@@ -13,7 +13,13 @@ class WaterDrape(plab_things.Drape):
     """Handles water logic."""
 
     def update(self, actions, board, layers, backdrop, things, the_plot):
-        """Prevent player from moving through water."""
+        pass
+
+
+class BridgeDrape(plab_things.Drape):
+    """Handles bridge logic."""
+
+    def update(self, actions, board, layers, backdrop, things, the_plot):
         pass
 
 

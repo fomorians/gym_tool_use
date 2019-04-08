@@ -66,7 +66,7 @@ def generate_bridge_building_art(num_boxes, np_random=np.random):
                     for box_position_index in box_position_indices]
 
     # Assign random numbers to the boxes.
-    box_ids = np_random.choice(len(utils.WATER_BOXES), size=num_boxes, replace=False)
+    box_ids = np_random.choice(len(utils.BOXES), size=num_boxes, replace=False)
 
     # Paint positions
     art = list(BRIDGE_BUILDING_TEMPLATE)
@@ -80,11 +80,52 @@ def generate_bridge_building_art(num_boxes, np_random=np.random):
     return art, what_lies_beneath, {}
 
 
+def generate_pallete(num_samples, exclude=[], np_random=np.random):
+    """Generate a random palette."""
+    unit_vec = np_random.normal(loc=0, scale=1, size=(num_samples, 3))
+    unit_vec = unit_vec / np.linalg.norm(unit_vec, ord=2, axis=-1, keepdims=True)
+    unit_palette = ((unit_vec + 1) / 2) * 255.
+    for exclude_palette in exclude:
+        if np.all(unit_palette.astype(np.uint8) == exclude_palette.astype(np.uint8)):
+            return None
+    return unit_palette
+
+
+def generate_bridge_building_colors(np_random=np.random):
+    """Generate bridge building colors."""
+    goal_color = np.array([255., 255., 255.])
+    player_color = np.array([  0.,   0.,   0.])
+    num_characters = len(utils.CHARACTERS_NO_G_OR_P)
+
+    # Need to regenerate if goal or player are drawn.
+    palettes = []
+    for _ in range(num_characters):
+        while True:
+            palette = generate_pallete(
+                1, 
+                exclude=[goal_color, player_color], np_random=np_random)
+            if palette is not None:
+                break
+        palettes.append(palette)
+    palettes = np.concatenate(palettes, axis=0)
+
+    colors = {
+        'G': goal_color, 
+        'P': player_color,
+        'W': palettes[0],
+        'B': palettes[1],
+        ' ': palettes[2],
+    }
+    box_colors = {box: palettes[3] for box in utils.BOXES}  # same colors.
+    colors.update(box_colors)
+    return colors
+
+
 class BridgeBuildingEnv(pycolab_env.PyColabEnv):
     """Bridge building game."""
 
     def __init__(self, observation_type='layers', max_iterations=20):
-        merge_layer_groups = [set([str(box) for box in range(len(utils.WATER_BOXES))])]
+        merge_layer_groups = [set([str(box) for box in range(len(utils.BOXES))])]
         self.np_random = None
         super(BridgeBuildingEnv, self).__init__(
             game_factory=lambda: games.make_tool_use_game(
@@ -96,24 +137,22 @@ class BridgeBuildingEnv(pycolab_env.PyColabEnv):
             resize_scale=32,
             observation_type=observation_type,
             delay=200,
-            colors=utils.COLORS,
-            exclude_from_state=set([' ']),
+            colors=lambda: generate_bridge_building_colors(
+                self.np_random if self.np_random else np.random),
+            exclude_from_state=None if observation_type == 'rgb' else set([' ']),
             merge_layer_groups=merge_layer_groups)
 
 
 if __name__ == "__main__":
     np.random.seed(42)
-    env = BridgeBuildingEnv(observation_type='layers')
+    env = BridgeBuildingEnv(observation_type='rgb')
     print(env._observation_order)
     env.seed(42)
     for _ in range(10):
         state = env.reset()
-        print(env._observation_order)
-        print(state.shape)
-        print(state[:, :, 0])
-        for action in [1, 2, 2, 2, 2, 2, 2]:
+        for action in [2, 2, 2, 1, 1, 1, 1, 1, 3]:
             env.render()
-            state, _, _, _ = env.step(action)
-            print(state[:, :, 0])
+            state, reward, _, _ = env.step(action)
+            print(reward)
         env.render()
     env.close()
