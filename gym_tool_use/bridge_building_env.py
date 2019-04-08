@@ -91,17 +91,18 @@ def generate_pallete(num_samples, exclude=[], np_random=np.random):
     return unit_palette
 
 
+goal_color = np.array([13, 171, 162])
+player_color = np.array([38, 126, 218])
 
-goal_color = np.array([255., 255., 255.])
-player_color = np.array([  0.,   0.,   0.])
 default_colors = {
     'G': goal_color, 
     'P': player_color,
-    'W': np.array([0.,     0., 255.]),
-    'B': np.array([75.,   75.,  75.]),
-    ' ': np.array([125., 125., 125.]),
+    'W': np.array([ 13, 179, 104]),
+    'B': np.array([207, 27, 128]),
+    ' ': np.array([108, 133,  1]),
 }
-box_colors = {box: np.array([255., 255., 0.]) for box in utils.BOXES}  # same colors.
+
+box_colors = {box: np.array([221, 205,  90]) for idx, box in enumerate(utils.BOXES)}  # same colors.
 default_colors.update(box_colors)
 
 
@@ -115,7 +116,8 @@ def generate_bridge_building_colors(np_random=np.random):
         while True:
             palette = generate_pallete(
                 1, 
-                exclude=[goal_color, player_color], np_random=np_random)
+                exclude=[goal_color, player_color], 
+                np_random=np_random)
             if palette is not None:
                 break
         palettes.append(palette)
@@ -139,6 +141,13 @@ class BridgeBuildingEnv(pycolab_env.PyColabEnv):
     def __init__(self, observation_type='layers', max_iterations=20, random_colors=False):
         merge_layer_groups = [set([str(box) for box in range(len(utils.BOXES))])]
         self.np_random = None
+        
+        if random_colors:
+            colors = lambda: generate_bridge_building_colors(
+                self.np_random if self.np_random else np.random)
+        else:
+            colors = default_colors
+
         super(BridgeBuildingEnv, self).__init__(
             game_factory=lambda: games.make_tool_use_game(
                 *generate_bridge_building_art(
@@ -149,9 +158,7 @@ class BridgeBuildingEnv(pycolab_env.PyColabEnv):
             resize_scale=32,
             observation_type=observation_type,
             delay=200,
-            colors=(lambda: generate_bridge_building_colors(
-                self.np_random if self.np_random else np.random)) 
-                if random_colors else default_colors,
+            colors=colors,
             exclude_from_state=None if observation_type == 'rgb' else set([' ']),
             merge_layer_groups=merge_layer_groups)
 
