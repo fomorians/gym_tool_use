@@ -11,12 +11,11 @@ $ (cd gym_tool_use; pip install -e .)
 
 # Usage
 
-```sh
+```python
 import gym
 import gym_tool_use
 
-train_env = gym.make('ToolUse-v0')
-test_env = gym.make('BridgeBuilding-v0')
+test_env = gym_tool_use.BridgeBuildingEnv()
 ```
 
 # Development
