@@ -80,9 +80,9 @@ def generate_bridge_building_art(num_boxes, np_random=np.random):
     return art, what_lies_beneath, {}
 
 
-def generate_pallete(num_samples, exclude=[], np_random=np.random):
+def generate_color(exclude=[], np_random=np.random):
     """Generate a random palette."""
-    unit_vec = np_random.normal(loc=0, scale=1, size=(num_samples, 3))
+    unit_vec = np_random.normal(loc=0, scale=1, size=(1, 3))
     unit_vec = unit_vec / np.linalg.norm(unit_vec, ord=2, axis=-1, keepdims=True)
     unit_palette = ((unit_vec + 1) / 2) * 255.
     for exclude_palette in exclude:
@@ -111,26 +111,25 @@ def generate_bridge_building_colors(np_random=np.random):
     num_characters = len(utils.CHARACTERS_NO_G_OR_P)
 
     # Need to regenerate if goal or player are drawn.
-    palettes = []
+    palette = []
     for _ in range(num_characters):
         while True:
-            palette = generate_pallete(
-                1, 
-                exclude=[goal_color, player_color], 
+            color = generate_color(
+                exclude=[goal_color, player_color] + palette, 
                 np_random=np_random)
-            if palette is not None:
+            if color is not None:
                 break
-        palettes.append(palette)
-    palettes = np.concatenate(palettes, axis=0)
+        palette.append(color[0])
+    palette = np.stack(palette, axis=0)
 
     colors = {
         'G': goal_color, 
         'P': player_color,
-        'W': palettes[0],
-        'B': palettes[1],
-        ' ': palettes[2],
+        'W': palette[0],
+        'B': palette[1],
+        ' ': palette[2],
     }
-    box_colors = {box: palettes[3] for box in utils.BOXES}  # same colors.
+    box_colors = {box: palette[3] for box in utils.BOXES}  # same colors.
     colors.update(box_colors)
     return colors
 
