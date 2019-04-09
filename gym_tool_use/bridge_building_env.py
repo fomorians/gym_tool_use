@@ -93,13 +93,14 @@ def generate_color(exclude=[], np_random=np.random):
 
 goal_color = np.array([13, 171, 162])
 player_color = np.array([38, 126, 218])
+bg_color = np.array([108, 133,  1])
 
 default_colors = {
     'G': goal_color, 
     'P': player_color,
     'W': np.array([ 13, 179, 104]),
     'B': np.array([207, 27, 128]),
-    ' ': np.array([108, 133,  1]),
+    ' ': bg_color,
 }
 
 box_colors = {box: np.array([221, 205,  90]) for idx, box in enumerate(utils.BOXES)}  # same colors.
@@ -108,11 +109,10 @@ default_colors.update(box_colors)
 
 def generate_bridge_building_colors(np_random=np.random):
     """Generate bridge building colors."""
-    num_characters = len(utils.CHARACTERS_NO_G_OR_P)
 
     # Need to regenerate if goal or player are drawn.
     palette = []
-    for _ in range(num_characters):
+    for _ in range(3):
         while True:
             color = generate_color(
                 exclude=[goal_color, player_color] + palette, 
@@ -127,9 +127,9 @@ def generate_bridge_building_colors(np_random=np.random):
         'P': player_color,
         'W': palette[0],
         'B': palette[1],
-        ' ': palette[2],
+        ' ': bg_color,
     }
-    box_colors = {box: palette[3] for box in utils.BOXES}  # same colors.
+    box_colors = {box: palette[2] for box in utils.BOXES}  # same colors.
     colors.update(box_colors)
     return colors
 
