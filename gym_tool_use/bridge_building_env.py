@@ -1,17 +1,4 @@
-"""The Bridge Building Environment.
-
-In this environment, water and boxes can exist on the edge of the 
-game.
-
-The agent always starts at the top (row 1), and the goal is on the 
-bottom (row last-1).
-
-A box will spawn in +1 or +2 rows from the agent, but can not spawn 
-in the columns between the agent and the goal.
-
-A natural 'river' (water in all columns) exists +3 rows 
-from the agent.
-"""
+"""The Bridge Building Environment."""
 
 from __future__ import absolute_import
 from __future__ import division
@@ -30,43 +17,53 @@ BRIDGE_BUILDING_TEMPLATE = [
     '        ', 
     '        ', 
     '        ', 
-    'WWWWWWWW',
+    '        ',  # WWWWWWWW
     '        ', 
     '        ', 
     '        ',
 ]
+DIVIDER_X = 4
 
 
-def generate_bridge_building_art(num_boxes, np_random=np.random):
+def generate_bridge_building_art(randomly_swap_water_and_boxes=False, 
+                                 np_random=np.random):
     """Generate bridge building art."""
-    x_positions = [1, len(BRIDGE_BUILDING_TEMPLATE) - 2]
-    player_side, goal_side = 0, 1
-    c_l, c_r = 2, len(BRIDGE_BUILDING_TEMPLATE) - 2
+    num_x = num_y = len(BRIDGE_BUILDING_TEMPLATE)
+    c_l, c_r = 2, num_y - 2
 
     # Generate player position
     player_y_position = np_random.randint(c_l, c_r)
-    player_x_position = x_positions[player_side]
+    player_x_position = np_random.randint(0, DIVIDER_X)
     player_position = (player_x_position, player_y_position)
 
     # Generate goal position
     goal_y_position = np_random.randint(c_l, c_r)
-    goal_x_position = x_positions[goal_side]
+    goal_x_position = np_random.randint(DIVIDER_X + 1, num_x)
     goal_position = (goal_x_position, goal_y_position)
 
+    # TODO(wenkesj): is this necessary now?
     # Generate box positions out of the shortest path.
     c_l_range = list(range(c_l - 1, min(player_y_position, goal_y_position)))
     c_r_range = list(range(max(player_y_position, goal_y_position) + 1, c_r + 1))
     box_side_positions = [
         (x, y)
-        for x in list(range(2, 4))
+        for x in range(1, DIVIDER_X)  # can't start in the first row,
+                                      # nor in the river.
         for y in c_l_range + c_r_range]
+
+    if player_position in box_side_positions:
+        box_side_positions.pop(box_side_positions.index(player_position))
+
     box_position_indices = np_random.choice(
-        len(box_side_positions), size=num_boxes, replace=False)
+        len(box_side_positions), size=1, replace=False)
     box_positions = [box_side_positions[box_position_index] 
                     for box_position_index in box_position_indices]
 
     # Assign random numbers to the boxes.
-    box_ids = np_random.choice(len(utils.BOXES), size=num_boxes, replace=False)
+    box_ids = np_random.choice(len(utils.BOXES), size=1, replace=False)
+
+    # Assign a river.
+    water_positions = [(DIVIDER_X, y) for y in range(num_y)]
 
     # Paint positions
     art = list(BRIDGE_BUILDING_TEMPLATE)
@@ -74,17 +71,37 @@ def generate_bridge_building_art(num_boxes, np_random=np.random):
     what_lies_beneath = [[' '] * len(row) for row in art]
     art = utils.paint(art, [player_position], ['P'])
     art = utils.paint(art, [goal_position], ['G'])
-    art = utils.paint(art, box_positions, [str(box_id) for box_id in box_ids])
+
+    # Randomly swap between painting water or box tiles.
+    water_ids = ['W'] * num_x
+    box_ids = [str(box_id) for box_id in box_ids]
+
+    if randomly_swap_water_and_boxes:
+        # Swap "uniformly discrete".
+        if np_random.randint(2):
+            print('swapping boxes.')
+            tmp_water_positions = list(water_positions)
+            # Generate enough boxes to fill the "river".
+            water_positions = box_positions
+            water_ids = ['W'] * len(box_positions)
+
+            box_positions = tmp_water_positions
+            box_ids = [str(box_id) for box_id in range(num_y)]
+            print(box_ids)
+
+    art = utils.paint(art, water_positions, water_ids)
+    art = utils.paint(art, box_positions, box_ids)
+
     art = [''.join(row) for row in art]
     what_lies_beneath = [''.join(row) for row in what_lies_beneath]
     return art, what_lies_beneath, {}
 
 
 def generate_color(exclude=[], np_random=np.random):
-    """Generate a random palette."""
+    """Generate a random color on a hypersphere."""
     unit_vec = np_random.normal(loc=0, scale=1, size=(1, 3))
     unit_vec = unit_vec / np.linalg.norm(unit_vec, ord=2, axis=-1, keepdims=True)
-    unit_palette = ((unit_vec + 1) / 2) * 255.
+    unit_palette = ((unit_vec + 1) / 2) * 255.  # normalize and scale to color space.
     for exclude_palette in exclude:
         if np.all(unit_palette.astype(np.uint8) == exclude_palette.astype(np.uint8)):
             return None
@@ -137,20 +154,30 @@ def generate_bridge_building_colors(np_random=np.random):
 class BridgeBuildingEnv(pycolab_env.PyColabEnv):
     """Bridge building game."""
 
-    def __init__(self, observation_type='layers', max_iterations=20, random_colors=False):
+    def __init__(self, 
+                 observation_type='layers', 
+                 max_iterations=25,
+                 random_colors=False, 
+                 randomly_swap_water_and_boxes=False,
+                 override_art=None):
         merge_layer_groups = [set([str(box) for box in range(len(utils.BOXES))])]
         self.np_random = None
-        
+
         if random_colors:
             colors = lambda: generate_bridge_building_colors(
                 self.np_random if self.np_random else np.random)
         else:
             colors = default_colors
 
+        if override_art:
+            generate_art = lambda: (override_art, ' ', {})
+        else:
+            generate_art = lambda: generate_bridge_building_art(
+                randomly_swap_water_and_boxes=randomly_swap_water_and_boxes,
+                np_random=self.np_random if self.np_random else np.random)
+
         super(BridgeBuildingEnv, self).__init__(
-            game_factory=lambda: games.make_tool_use_game(
-                *generate_bridge_building_art(
-                    1, self.np_random if self.np_random else np.random)),
+            game_factory=lambda: games.make_tool_use_game(*generate_art()),
             max_iterations=max_iterations, 
             default_reward=0.,
             action_space=utils.ACTION_SPACE,

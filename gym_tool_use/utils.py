@@ -9,7 +9,7 @@ import collections
 from gym import spaces
 
 
-BOXES = '0'
+BOXES = ''.join(str(box_id) for box_id in range(8))
 CHARACTERS = ['G', 'P', 'W', 'B', ' '] + list(BOXES)
 CHARACTERS_NO_G_OR_P = ['W', 'B', ' '] + list(BOXES)
 ACTION_SPACE = spaces.Discrete(4)
