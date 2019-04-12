@@ -79,7 +79,6 @@ def generate_bridge_building_art(randomly_swap_water_and_boxes=False,
     if randomly_swap_water_and_boxes:
         # Swap "uniformly discrete".
         if np_random.randint(2):
-            print('swapping boxes.')
             tmp_water_positions = list(water_positions)
             # Generate enough boxes to fill the "river".
             water_positions = box_positions
@@ -87,7 +86,6 @@ def generate_bridge_building_art(randomly_swap_water_and_boxes=False,
 
             box_positions = tmp_water_positions
             box_ids = [str(box_id) for box_id in range(num_y)]
-            print(box_ids)
 
     art = utils.paint(art, water_positions, water_ids)
     art = utils.paint(art, box_positions, box_ids)
@@ -156,7 +154,7 @@ class BridgeBuildingEnv(pycolab_env.PyColabEnv):
 
     def __init__(self, 
                  observation_type='layers', 
-                 max_iterations=25,
+                 max_iterations=75,
                  random_colors=False, 
                  randomly_swap_water_and_boxes=False,
                  override_art=None):
