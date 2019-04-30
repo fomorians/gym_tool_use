@@ -655,11 +655,3 @@ class BaseTrapTubeEnv(gym_pycolab.PyColabEnv):
             FOOD:      (208, 57, 77),
             GROUND:    (72, 65, 17),
         }
-
-
-if __name__ == "__main__":
-    np.random.seed(42)
-
-    # TrapEnv.test_case()
-    # FakeTrapEnv.test_case()
-    # FakeToolEnv.test_case()
