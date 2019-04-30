@@ -12,7 +12,7 @@ from gym_tool_use import trap_tube_env
 
 class TrapEnv(trap_tube_env.BaseTrapTubeEnv):
     
-    def _make_trap_tube_cofig(self):
+    def _make_trap_tube_config(self):
         art = [
             '          ', 
             '          ', 
@@ -40,7 +40,7 @@ class TrapEnv(trap_tube_env.BaseTrapTubeEnv):
 
 class FakeTrapEnv(trap_tube_env.BaseTrapTubeEnv):
     
-    def _make_trap_tube_cofig(self):
+    def _make_trap_tube_config(self):
         art = [
             '          ', 
             '          ', 
@@ -68,7 +68,7 @@ class FakeTrapEnv(trap_tube_env.BaseTrapTubeEnv):
 
 class FakeToolEnv(trap_tube_env.BaseTrapTubeEnv):
     
-    def _make_trap_tube_cofig(self):
+    def _make_trap_tube_config(self):
         art = [
             '          ', 
             '          ', 

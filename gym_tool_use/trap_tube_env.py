@@ -576,7 +576,7 @@ class BaseTrapTubeEnv(gym_pycolab.PyColabEnv):
             delay=200)
 
     @abc.abstractmethod
-    def _make_trap_tube_cofig(self):
+    def _make_trap_tube_config(self):
         """Create the game art.
 
         Returns:
@@ -589,7 +589,7 @@ class BaseTrapTubeEnv(gym_pycolab.PyColabEnv):
         Returns:
             pycolab.Engine
         """
-        config = self._make_trap_tube_cofig()
+        config = self._make_trap_tube_config()
 
         impassible_to_agent = TUBE + TOOL + FAKE_TOOL + TRAP + FAKE_TRAP
         sprites = {
