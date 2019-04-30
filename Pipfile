@@ -4,6 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+absl-py = "*"
 pycolab = "*"
 gym = "*"
 gym-pycolab = {editable = true, git = "https://github.com/fomorians/gym_pycolab.git"}
