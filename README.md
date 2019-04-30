@@ -17,7 +17,7 @@ import gym_tool_use
 
 class TrapEnv(gym_tool_use.BaseTrapTubeEnv):
     
-    def _make_trap_tube_cofig(self):
+    def _make_trap_tube_config(self):
         art = [
             '          ', 
             '          ', 
