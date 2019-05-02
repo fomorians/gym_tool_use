@@ -13,4 +13,5 @@ setup(
     packages=find_packages(),
     install_requires=['pycolab', 'gym', 'gym_pycolab'],
     dependency_links=[
-        'https://github.com/fomorians/gym_pycolab/tarball/master#egg=gym_pycolab-0.0.0'])
+        'https://github.com/fomorians/gym_pycolab/tarball/v1'
+        '#egg=gym_pycolab-0.0.0'])

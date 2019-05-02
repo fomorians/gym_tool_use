@@ -1,6 +1,5 @@
-/archive
 .vscode
-/references
 .DS_Store
 *.egg-info
 *.pyc
+/gym_tool_use/symbolic_trap_tube_env.py
