@@ -82,16 +82,21 @@ class SymbolicTrapTubeEnv(trap_tube_env.BaseTrapTubeEnv):
             food_position=self._food_position)
 
     def make_colors(self):
+        np_random = self.np_random if self.np_random else np.random
+
         if trap_tube_env.FOOD not in self._colors:
             self._colors[trap_tube_env.FOOD] = trap_tube_env.FOOD_COLOR
         if trap_tube_env.AGENT not in self._colors:
             self._colors[trap_tube_env.AGENT] = trap_tube_env.AGENT_COLOR
 
         # Force the symbolism of the traps.
-        # We set the trap and fake trap colors to the ground color.
-        self._colors[trap_tube_env.TRAP] = self._colors[trap_tube_env.GROUND]
-        self._colors[trap_tube_env.FAKE_TRAP] = self._colors[
-            trap_tube_env.GROUND]
+        # We set the trap and fake trap colors to the ground color randomly.
+        if np_random.choice(2):
+            self._colors[trap_tube_env.TRAP] = self._colors[
+                trap_tube_env.GROUND]
+        if np_random.choice(2):
+            self._colors[trap_tube_env.FAKE_TRAP] = self._colors[
+                trap_tube_env.GROUND]
         return self._colors
 
 

@@ -20,6 +20,10 @@ $ (cd gym_tool_use; pip install -e .)
     <img src="structural.gif" alt="Structural">
   </p>
   <p align="center"><i>Structural</i></p>
+  <p align="center">
+    <img src="symbolic.gif" alt="Symbolic">
+  </p>
+  <p align="center"><i>Symbolic</i></p>
 </p>
 
 # Development
