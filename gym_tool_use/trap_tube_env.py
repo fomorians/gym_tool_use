@@ -29,8 +29,15 @@ FAKE_TRAP = 'n'
 FOOD = 'f'
 TASK = 'j'
 GROUND = ' '
-FOOD_COLOR = (208, 57, 77)
+TOOL_COLOR = (152, 208, 57)
+FAKE_TOOL_COLOR = (152, 255, 57),
 AGENT_COLOR = (113, 57, 208)
+TUBE_COLOR = (57, 152, 208)
+FAKE_TUBE_COLOR = (57, 202, 208)
+TRAP_COLOR = (208, 113, 57)
+FAKE_TRAP_COLOR = (208, 189, 57)
+FOOD_COLOR = (208, 57, 77)
+GROUND_COLOR = (72, 65, 17)
 REWARD = 1.0
 
 Actions = collections.namedtuple(
@@ -744,3 +751,39 @@ class BaseTrapTubeEnv(gym_pycolab.PyColabEnv):
 
     def make_colors(self):
         return {}
+
+
+# Base config option.
+base_config = TrapTubeConfig(
+    art=[
+        '          ',
+        '          ',
+        '          ',
+        '  mmmmmm  ',
+        '  u    n  ',
+        '  u    n  ',
+        '  mmmmmm  ',
+        '          ',
+        'a         ',
+        '          ',
+    ],
+    tool_position=(3, 3),
+    tool_size=4,
+    tool_direction=0,
+    fake_tool_position=(-1, -1),
+    fake_tool_size=0,
+    fake_tool_direction=0,
+    food_position=(4, 4))
+
+# Base colors option.
+base_colors = {
+    TOOL: TOOL_COLOR,
+    FAKE_TOOL: FAKE_TOOL_COLOR,
+    AGENT: AGENT_COLOR,
+    TUBE: TUBE_COLOR,
+    FAKE_TUBE: FAKE_TUBE_COLOR,
+    TRAP: TRAP_COLOR,
+    FAKE_TRAP: FAKE_TRAP_COLOR,
+    FOOD: FOOD_COLOR,
+    GROUND: GROUND_COLOR,
+}

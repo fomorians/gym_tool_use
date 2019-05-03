@@ -1,6 +1,6 @@
-# Gym Tool-Use
+# Gym Tool Use
 
-Gym tool-use environments.
+Gym tool use environments.
 
 <hr/>
 
@@ -9,22 +9,13 @@ $ git clone https://github.com/fomorians/gym_tool_use.git
 $ (cd gym_tool_use; pip install -e .)
 ```
 
-# Examples So Far
+# Showcase
 
-<p align="center">
-  <p align="center">
-    <img src="perceptual.gif" alt="Perceptual">
-  </p>
-  <p align="center"><i>Perceptual</i></p>
-  <p align="center">
-    <img src="structural.gif" alt="Structural">
-  </p>
-  <p align="center"><i>Structural</i></p>
-  <p align="center">
-    <img src="symbolic.gif" alt="Symbolic">
-  </p>
-  <p align="center"><i>Symbolic</i></p>
-</p>
+| | | |
+| :---: | :---: | :---: |
+| ![perceptual](perceptual.png) <br> perceptual | ![structural](structural.png) <br> structural | ![symbolic](symbolic.png) <br> symbolic |
+| ![perceptual_symbolic](perceptual_symbolic.png) <br> perceptual_symbolic | ![perceptual_structural](perceptual_structural.png) <br> perceptual_structural | ![structural_symbolic](structural_symbolic.png) <br> structural_symbolic |
+| | ![perceptual_structural_symbolic](perceptual_structural_symbolic.png) <br> perceptual_structural_symbolic | |
 
 # Development
 
