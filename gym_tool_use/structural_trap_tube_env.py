@@ -88,7 +88,7 @@ class StructuralTrapTubeEnv(trap_tube_env.BaseTrapTubeEnv):
     def _make_trap_tube_config(self):
         """Creates a single example of structural generalization.
 
-        All episodes of a level has the _same_ solutions. There are no
+        All episodes of a level have the _same_ solutions. There are no
         perceptual changes, only structural via feature transformations.
 
         Returns:

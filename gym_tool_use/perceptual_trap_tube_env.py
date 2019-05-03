@@ -233,15 +233,16 @@ if __name__ == '__main__':
     np.random.seed(42)
 
     for _ in range(10):
-        env = PerceptualTrapTubeEnv({
-            trap_tube_env.TOOL:      (152, 208, 57),
-            trap_tube_env.FAKE_TOOL: (152, 255, 57),
-            trap_tube_env.TUBE:      (57, 152, 208),
-            trap_tube_env.FAKE_TUBE: (57, 202, 208),
-            trap_tube_env.TRAP:      (208, 113, 57),
-            trap_tube_env.FAKE_TRAP: (208, 189, 57),
-            trap_tube_env.GROUND:    (72, 65, 17),
-        })
+        env = PerceptualTrapTubeEnv(
+            colors={
+                trap_tube_env.TOOL:      (152, 208, 57),
+                trap_tube_env.FAKE_TOOL: (152, 255, 57),
+                trap_tube_env.TUBE:      (57, 152, 208),
+                trap_tube_env.FAKE_TUBE: (57, 202, 208),
+                trap_tube_env.TRAP:      (208, 113, 57),
+                trap_tube_env.FAKE_TRAP: (208, 189, 57),
+                trap_tube_env.GROUND:    (72, 65, 17),
+            })
         state = env.reset()
         env.render()
         total_reward = 0.
