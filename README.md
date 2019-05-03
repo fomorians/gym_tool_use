@@ -14,7 +14,7 @@ $ (cd gym_tool_use; pip install -e .)
 | | | |
 | :---: | :---: | :---: |
 | ![perceptual](perceptual.png) <br> perceptual | ![structural](structural.png) <br> structural | ![symbolic](symbolic.png) <br> symbolic |
-| ![perceptual_symbolic](perceptual_symbolic.png) <br> perceptual_symbolic | ![perceptual_structural](perceptual_structural.png) <br> perceptual_structural | ![structural_symbolic](structural_symbolic.png) <br> structural_symbolic |
+| ![perceptual_symbolic](perceptual_symbolic.png) <br> perceptual_structural | ![perceptual_structural](perceptual_structural.png) <br> perceptual_symbolic | ![structural_symbolic](structural_symbolic.png) <br> structural_symbolic |
 | | ![perceptual_structural_symbolic](perceptual_structural_symbolic.png) <br> perceptual_structural_symbolic | |
 
 # Development
