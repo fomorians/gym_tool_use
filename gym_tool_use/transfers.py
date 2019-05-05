@@ -100,17 +100,17 @@ def symbolic_transfer(colors, np_random):
     Returns:
         Dictionary mapping key name to `tuple(R, G, B)`.
     """
-    assert trap_tube_env.GROUND in colors, '`GROUND` must have a color.'
-
-    # Force the symbolism of the traps.
-    # We set the trap and fake trap colors to the ground color randomly.
-    if np_random.choice(2):
-        colors[trap_tube_env.TRAP] = colors[
-            trap_tube_env.GROUND]
-    if np_random.choice(2):
-        colors[trap_tube_env.FAKE_TRAP] = colors[
-            trap_tube_env.GROUND]
-    return colors
+    new_colors = dict(colors)
+    all_objects = list(trap_tube_env.SYMBOLIC_OBJECTS)
+    indices = np.random.choice(len(all_objects), size=2, replace=False)
+    gt_objects = []
+    for index in indices:
+        gt_objects.append(all_objects[index])
+    for obj in gt_objects:
+        all_objects.remove(obj)
+    for obj in all_objects:
+        new_colors[obj] = new_colors[np.random.choice(gt_objects)]
+    return new_colors
 
 
 def perceptual_transfer(config, np_random):
@@ -342,7 +342,7 @@ class PerceptualTrapTubeEnv(BaseTransferTrapTubeEnv):
             config_transfers=[perceptual_transfer],
             color_transfers=[],
             initial_config=trap_tube_env.base_config,
-            initial_colors=trap_tube_env.base_colors,
+            initial_colors=dict(trap_tube_env.base_colors),
             max_iterations=max_iterations)
 
 
@@ -353,7 +353,7 @@ class StructuralTrapTubeEnv(BaseTransferTrapTubeEnv):
             config_transfers=[],
             color_transfers=[structural_transfer],
             initial_config=trap_tube_env.base_config,
-            initial_colors=trap_tube_env.base_colors,
+            initial_colors=dict(trap_tube_env.base_colors),
             max_iterations=max_iterations)
 
 
@@ -364,7 +364,7 @@ class SymbolicTrapTubeEnv(BaseTransferTrapTubeEnv):
             config_transfers=[],
             color_transfers=[symbolic_transfer],
             initial_config=trap_tube_env.base_config,
-            initial_colors=trap_tube_env.base_colors,
+            initial_colors=dict(trap_tube_env.base_colors),
             max_iterations=max_iterations)
 
 
@@ -375,7 +375,7 @@ class StructuralSymbolicTrapTubeEnv(BaseTransferTrapTubeEnv):
             config_transfers=[],
             color_transfers=[structural_transfer, symbolic_transfer],
             initial_config=trap_tube_env.base_config,
-            initial_colors=trap_tube_env.base_colors,
+            initial_colors=dict(trap_tube_env.base_colors),
             max_iterations=max_iterations)
 
 
@@ -386,7 +386,7 @@ class PerceptualStructuralTrapTubeEnv(BaseTransferTrapTubeEnv):
             config_transfers=[perceptual_transfer],
             color_transfers=[structural_transfer],
             initial_config=trap_tube_env.base_config,
-            initial_colors=trap_tube_env.base_colors,
+            initial_colors=dict(trap_tube_env.base_colors),
             max_iterations=max_iterations)
 
 
@@ -397,7 +397,7 @@ class PerceptualSymbolicTrapTubeEnv(BaseTransferTrapTubeEnv):
             config_transfers=[perceptual_transfer],
             color_transfers=[symbolic_transfer],
             initial_config=trap_tube_env.base_config,
-            initial_colors=trap_tube_env.base_colors,
+            initial_colors=dict(trap_tube_env.base_colors),
             max_iterations=max_iterations)
 
 
@@ -408,21 +408,45 @@ class PerceptualStructuralSymbolicTrapTubeEnv(BaseTransferTrapTubeEnv):
             config_transfers=[perceptual_transfer],
             color_transfers=[structural_transfer, symbolic_transfer],
             initial_config=trap_tube_env.base_config,
-            initial_colors=trap_tube_env.base_colors,
+            initial_colors=dict(trap_tube_env.base_colors),
             max_iterations=max_iterations)
 
 
 if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--transfer',
+        choices=[
+            'p',
+            'st',
+            'sy',
+            'stsy',
+            'pst',
+            'psy',
+            'pstsy',
+        ],
+        required=True)
+    args = parser.parse_args()
     np.random.seed(42)
 
-    for constructor in [
-            PerceptualTrapTubeEnv,
-            StructuralTrapTubeEnv,
-            SymbolicTrapTubeEnv,
-            StructuralSymbolicTrapTubeEnv,
-            PerceptualStructuralTrapTubeEnv,
-            PerceptualSymbolicTrapTubeEnv,
-            PerceptualStructuralSymbolicTrapTubeEnv]:
+    if args.transfer == 'p':
+        constructor = PerceptualTrapTubeEnv
+    elif args.transfer == 'st':
+        constructor = StructuralTrapTubeEnv
+    elif args.transfer == 'sy':
+        constructor = SymbolicTrapTubeEnv
+    elif args.transfer == 'stsy':
+        constructor = StructuralSymbolicTrapTubeEnv
+    elif args.transfer == 'pst':
+        constructor = PerceptualStructuralTrapTubeEnv
+    elif args.transfer == 'psy':
+        constructor = PerceptualSymbolicTrapTubeEnv
+    elif args.transfer == 'pstsy':
+        constructor = PerceptualStructuralSymbolicTrapTubeEnv
+
+    for _ in range(10):
         env = constructor()
         state = env.reset()
         env.render()
