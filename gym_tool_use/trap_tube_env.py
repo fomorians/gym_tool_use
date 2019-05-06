@@ -20,10 +20,8 @@ from pycolab.prefab_parts import sprites as prefab_sprites
 
 
 TOOL = 'p'
-FAKE_TOOL = 'q'
 AGENT = 'a'
 TUBE = 'm'
-FAKE_TUBE = 'w'
 TRAP = 'u'
 FAKE_TRAP = 'n'
 FOOD = 'f'
@@ -31,10 +29,8 @@ TASK = 'j'
 GROUND = ' '
 SYMBOLIC_OBJECTS = [TOOL, TUBE, TRAP, FAKE_TRAP]
 TOOL_COLOR = (152, 208, 57)
-FAKE_TOOL_COLOR = (152, 255, 57),
 AGENT_COLOR = (113, 57, 208)
 TUBE_COLOR = (57, 152, 208)
-FAKE_TUBE_COLOR = (57, 202, 208)
 TRAP_COLOR = (208, 113, 57)
 FAKE_TRAP_COLOR = (208, 189, 57)
 FOOD_COLOR = (208, 57, 77)
@@ -66,13 +62,6 @@ ACTIONS = Actions(
 
 class TubeDrape(plab_things.Drape):
     """Handles tube logic."""
-
-    def update(self, actions, board, layers, backdrop, things, the_plot):
-        pass
-
-
-class FakeTubeDrape(plab_things.Drape):
-    """Handles fake tube logic."""
 
     def update(self, actions, board, layers, backdrop, things, the_plot):
         pass
@@ -111,7 +100,6 @@ class FoodDrape(plab_things.Drape):
         tool = things[TOOL]
         trap = things[TRAP]
         tube = things[TUBE]
-        fake_tube = things[FAKE_TUBE]
 
         if not actions:
             self.has_moved = False
@@ -137,13 +125,11 @@ class FoodDrape(plab_things.Drape):
 
                 tube_is_north_of_food = tube.curtain[
                     food_row - 1, food_col]
-                fake_tube_is_north_of_food = fake_tube.curtain[
-                    food_row - 1, food_col]
                 if trap_is_north_of_food or tube_is_north_of_food or \
-                        (food_row == 0) or fake_tube_is_north_of_food:
+                        (food_row == 0):
                     self.has_moved = False
                 else:
-                    self._north(board, things)
+                    self._north(board, things, the_plot)
             else:
                 self.has_moved = False
 
@@ -164,13 +150,11 @@ class FoodDrape(plab_things.Drape):
 
                 tube_is_north_of_food = tube.curtain[
                     food_row - 1, food_col]
-                fake_tube_is_north_of_food = fake_tube.curtain[
-                    food_row - 1, food_col]
                 if trap_is_north_of_food or tube_is_north_of_food or \
-                        (food_row == 0) or fake_tube_is_north_of_food:
+                        (food_row == 0):
                     self.has_moved = False
                 else:
-                    self._north(board, things)
+                    self._north(board, things, the_plot)
             else:
                 self.has_moved = False
 
@@ -191,13 +175,10 @@ class FoodDrape(plab_things.Drape):
 
                 tube_is_south_of_food = tube.curtain[
                     food_row + 1, food_col]
-                fake_tube_is_south_of_food = fake_tube.curtain[
-                    food_row + 1, food_col]
-                if trap_is_south_of_food or tube_is_south_of_food or \
-                        fake_tube_is_south_of_food:
+                if trap_is_south_of_food or tube_is_south_of_food:
                     self.has_moved = False
                 else:
-                    self._south(board, things)
+                    self._south(board, things, the_plot)
             else:
                 self.has_moved = False
 
@@ -218,13 +199,10 @@ class FoodDrape(plab_things.Drape):
 
                 tube_is_south_of_food = tube.curtain[
                     food_row + 1, food_col]
-                fake_tube_is_south_of_food = fake_tube.curtain[
-                    food_row + 1, food_col]
-                if trap_is_south_of_food or tube_is_south_of_food or \
-                        fake_tube_is_south_of_food:
+                if trap_is_south_of_food or tube_is_south_of_food:
                     self.has_moved = False
                 else:
-                    self._south(board, things)
+                    self._south(board, things, the_plot)
             else:
                 self.has_moved = False
 
@@ -242,13 +220,10 @@ class FoodDrape(plab_things.Drape):
                 # trap_is_east_of_food = False
 
                 tube_is_east_of_food = tube.curtain[food_row, food_col + 1]
-                fake_tube_is_east_of_food = fake_tube.curtain[
-                    food_row, food_col + 1]
-                if trap_is_east_of_food or tube_is_east_of_food or \
-                        fake_tube_is_east_of_food:
+                if trap_is_east_of_food or tube_is_east_of_food:
                     self.has_moved = False
                 else:
-                    self._east(board, things)
+                    self._east(board, things, the_plot)
             else:
                 self.has_moved = False
 
@@ -266,13 +241,10 @@ class FoodDrape(plab_things.Drape):
                 # trap_is_west_of_food = False
 
                 tube_is_west_of_food = tube.curtain[food_row, food_col - 1]
-                fake_tube_is_west_of_food = fake_tube.curtain[
-                    food_row, food_col - 1]
-                if trap_is_west_of_food or tube_is_west_of_food or \
-                        fake_tube_is_west_of_food:
+                if trap_is_west_of_food or tube_is_west_of_food:
                     self.has_moved = False
                 else:
-                    self._west(board, things)
+                    self._west(board, things, the_plot)
             else:
                 self.has_moved = False
 
@@ -289,13 +261,10 @@ class FoodDrape(plab_things.Drape):
                 trap_is_west_of_food = trap.curtain[food_row, food_col - 1]
                 # trap_is_west_of_food = False
                 tube_is_west_of_food = tube.curtain[food_row, food_col - 1]
-                fake_tube_is_west_of_food = fake_tube.curtain[
-                    food_row, food_col - 1]
-                if trap_is_west_of_food or tube_is_west_of_food or \
-                        fake_tube_is_west_of_food:
+                if trap_is_west_of_food or tube_is_west_of_food:
                     self.has_moved = False
                 else:
-                    self._west(board, things)
+                    self._west(board, things, the_plot)
             else:
                 self.has_moved = False
 
@@ -313,21 +282,19 @@ class FoodDrape(plab_things.Drape):
                 # trap_is_east_of_food = False
 
                 tube_is_east_of_food = tube.curtain[food_row, food_col + 1]
-                fake_tube_is_east_of_food = fake_tube.curtain[
-                    food_row, food_col + 1]
-                if trap_is_east_of_food or tube_is_east_of_food or \
-                        fake_tube_is_east_of_food:
+                if trap_is_east_of_food or tube_is_east_of_food:
                     self.has_moved = False
                 else:
-                    self._east(board, things)
+                    self._east(board, things, the_plot)
             else:
                 self.has_moved = False
 
         else:
-            self._stay(board, things)
+            self._stay(board, things, the_plot)
 
-    def _north(self, board, things):
+    def _north(self, board, things, the_plot):
         if self._row > 0:
+            the_plot.info['move_food_north'] = True
             self.curtain[self.position] = False
             self._row -= 1
             self.curtain[self.position] = True
@@ -335,8 +302,9 @@ class FoodDrape(plab_things.Drape):
         else:
             self.has_moved = False
 
-    def _south(self, board, things):
+    def _south(self, board, things, the_plot):
         if self._row < board.shape[0]:
+            the_plot.info['move_food_south'] = True
             self.curtain[self.position] = False
             self._row += 1
             self.curtain[self.position] = True
@@ -344,8 +312,9 @@ class FoodDrape(plab_things.Drape):
         else:
             self.has_moved = False
 
-    def _east(self, board, things):
+    def _east(self, board, things, the_plot):
         if self._col < board.shape[1]:
+            the_plot.info['move_food_east'] = True
             self.curtain[self.position] = False
             self._col += 1
             self.curtain[self.position] = True
@@ -353,8 +322,9 @@ class FoodDrape(plab_things.Drape):
         else:
             self.has_moved = False
 
-    def _west(self, board, things):
+    def _west(self, board, things, the_plot):
         if self._col > 0:
+            the_plot.info['move_food_west'] = True
             self.curtain[self.position] = False
             self._col -= 1
             self.curtain[self.position] = True
@@ -362,7 +332,7 @@ class FoodDrape(plab_things.Drape):
         else:
             self.has_moved = False
 
-    def _stay(self, board, things):
+    def _stay(self, board, things, the_plot):
         self.has_moved = False
 
 
@@ -410,16 +380,11 @@ class BaseToolDrape(plab_things.Drape):
         pass
 
 
-class FakeToolDrape(BaseToolDrape):
-    """Handles fake tool logic."""
-    pass
-
-
 # TODO(wenkesj): handle multiple tools.
 class ToolDrape(BaseToolDrape):
     """Handles tool logic."""
 
-    def _north(self, board, things):
+    def _north(self, board, things, the_plot):
         if self._row == 0:
             self.has_moved = False
             return
@@ -434,12 +399,13 @@ class ToolDrape(BaseToolDrape):
             self.has_moved = False
             return
 
+        the_plot.info['move_tool_north'] = True
         curtain = np.roll(self.curtain, -1, axis=0)
         np.copyto(self.curtain, curtain)
         self._row -= 1
         self.has_moved = True
 
-    def _south(self, board, things):
+    def _south(self, board, things, the_plot):
         if self._row == (board.shape[1] - 1):
             self.has_moved = False
             return
@@ -454,12 +420,13 @@ class ToolDrape(BaseToolDrape):
             self.has_moved = False
             return
 
+        the_plot.info['move_tool_south'] = True
         curtain = np.roll(self.curtain, 1, axis=0)
         np.copyto(self.curtain, curtain)
         self._row += 1
         self.has_moved = True
 
-    def _east(self, board, things):
+    def _east(self, board, things, the_plot):
         if self._col == (board.shape[1] - 1):
             self.has_moved = False
             return
@@ -474,12 +441,13 @@ class ToolDrape(BaseToolDrape):
             self.has_moved = False
             return
 
+        the_plot.info['move_tool_east'] = True
         curtain = np.roll(self.curtain, 1, axis=1)
         np.copyto(self.curtain, curtain)
         self._col += 1
         self.has_moved = True
 
-    def _west(self, board, things):
+    def _west(self, board, things, the_plot):
         if self._col == 0:
             self.has_moved = False
             return
@@ -494,12 +462,13 @@ class ToolDrape(BaseToolDrape):
             self.has_moved = False
             return
 
+        the_plot.info['move_tool_west'] = True
         curtain = np.roll(self.curtain, -1, axis=1)
         np.copyto(self.curtain, curtain)
         self._col -= 1
         self.has_moved = True
 
-    def _stay(self, board, things):
+    def _stay(self, board, things, the_plot):
         self.has_moved = False
 
     def is_south_of_tool(self, row, col):
@@ -540,60 +509,60 @@ class ToolDrape(BaseToolDrape):
             is_in_col_range_of_tool = self.is_in_col_range_of_tool(row, col)
             is_south_of_tool = self.is_south_of_tool(row, col)
             if is_in_col_range_of_tool and is_south_of_tool:
-                self._north(board, things)
+                self._north(board, things, the_plot)
             else:
                 self.has_moved = False
         elif actions == ACTIONS.pull.down:
             is_in_col_range_of_tool = self.is_in_col_range_of_tool(row, col)
             is_south_of_tool = self.is_south_of_tool(row, col)
             if is_in_col_range_of_tool and is_south_of_tool:
-                self._south(board, things)
+                self._south(board, things, the_plot)
             else:
                 self.has_moved = False
         elif actions == ACTIONS.pull.up:
             is_in_col_range_of_tool = self.is_in_col_range_of_tool(row, col)
             is_north_of_tool = self.is_north_of_tool(row, col)
             if is_in_col_range_of_tool and is_north_of_tool:
-                self._north(board, things)
+                self._north(board, things, the_plot)
             else:
                 self.has_moved = False
         elif actions == ACTIONS.push.down:
             is_in_col_range_of_tool = self.is_in_col_range_of_tool(row, col)
             is_north_of_tool = self.is_north_of_tool(row, col)
             if is_in_col_range_of_tool and is_north_of_tool:
-                self._south(board, things)
+                self._south(board, things, the_plot)
             else:
                 self.has_moved = False
         elif actions == ACTIONS.push.right:
             is_in_row_range_of_tool = self.is_in_row_range_of_tool(row, col)
             is_west_of_tool = self.is_west_of_tool(row, col)
             if is_in_row_range_of_tool and is_west_of_tool:
-                self._east(board, things)
+                self._east(board, things, the_plot)
             else:
                 self.has_moved = False
         elif actions == ACTIONS.pull.left:
             is_in_row_range_of_tool = self.is_in_row_range_of_tool(row, col)
             is_west_of_tool = self.is_west_of_tool(row, col)
             if is_in_row_range_of_tool and is_west_of_tool:
-                self._west(board, things)
+                self._west(board, things, the_plot)
             else:
                 self.has_moved = False
         elif actions == ACTIONS.push.left:
             is_in_row_range_of_tool = self.is_in_row_range_of_tool(row, col)
             is_east_of_tool = self.is_east_of_tool(row, col)
             if is_in_row_range_of_tool and is_east_of_tool:
-                self._west(board, things)
+                self._west(board, things, the_plot)
             else:
                 self.has_moved = False
         elif actions == ACTIONS.pull.right:
             is_in_row_range_of_tool = self.is_in_row_range_of_tool(row, col)
             is_east_of_tool = self.is_east_of_tool(row, col)
             if is_in_row_range_of_tool and is_east_of_tool:
-                self._east(board, things)
+                self._east(board, things, the_plot)
             else:
                 self.has_moved = False
         else:
-            self._stay(board, things)
+            self._stay(board, things, the_plot)
 
 
 class AgentSprite(prefab_sprites.MazeWalker):
@@ -666,6 +635,7 @@ class TaskDrape(plab_things.Drape):
         #     the_plot.terminate_episode()
 
         if food.curtain[agent.position]:
+            the_plot.info['reached_food'] = True
             the_plot.add_reward(REWARD)
             food.curtain[agent.position] = False
 
@@ -676,9 +646,7 @@ class TaskDrape(plab_things.Drape):
 # Configures the trap tube environment.
 TrapTubeConfig = collections.namedtuple(
     'TrapTubeConfig',
-    ['art', 'tool_position', 'tool_size', 'tool_direction',
-     'fake_tool_position', 'fake_tool_size', 'fake_tool_direction',
-     'food_position'])
+    ['art', 'tool_position', 'tool_size', 'tool_direction', 'food_position'])
 
 
 class BaseTrapTubeEnv(gym_pycolab.PyColabEnv):
@@ -710,7 +678,7 @@ class BaseTrapTubeEnv(gym_pycolab.PyColabEnv):
         """
         config = self._make_trap_tube_config()
 
-        impassible_to_agent = TUBE + TOOL + FAKE_TOOL + TRAP + FAKE_TRAP
+        impassible_to_agent = TUBE + TOOL + TRAP + FAKE_TRAP
         sprites = {
             AGENT: ascii_art.Partial(
                 AgentSprite,
@@ -722,24 +690,16 @@ class BaseTrapTubeEnv(gym_pycolab.PyColabEnv):
             TRAP: TrapDrape,
             FAKE_TRAP: FakeTrapDrape,
             TUBE: TubeDrape,
-            FAKE_TUBE: FakeTubeDrape,
             TOOL: ascii_art.Partial(
                 ToolDrape,
                 config.tool_position,
                 tool_size=config.tool_size,
                 tool_direction=config.tool_direction),
-            FAKE_TOOL: ascii_art.Partial(
-                FakeToolDrape,
-                config.fake_tool_position,
-                tool_size=config.fake_tool_size,
-                tool_direction=config.fake_tool_direction),
             TASK: TaskDrape}
         update_schedule = [
-            [FOOD], [TOOL], [FAKE_TOOL], [AGENT], [TUBE], [FAKE_TUBE], [TRAP],
-            [FAKE_TRAP], [TASK]]
+            [FOOD], [TOOL], [AGENT], [TUBE], [TRAP], [FAKE_TRAP], [TASK]]
         z_order = [
-            TASK, TRAP, FAKE_TRAP, TUBE, FAKE_TUBE, FOOD, TOOL, FAKE_TOOL,
-            AGENT]
+            TASK, TRAP, FAKE_TRAP, TUBE, FOOD, TOOL, AGENT]
         game = ascii_art.ascii_art_to_game(
             config.art,
             ' ',
@@ -768,21 +728,16 @@ base_config = TrapTubeConfig(
         'a         ',
         '          ',
     ],
-    tool_position=(3, 3),
+    tool_position=(4, 3),
     tool_size=4,
     tool_direction=0,
-    fake_tool_position=(-1, -1),
-    fake_tool_size=0,
-    fake_tool_direction=0,
     food_position=(4, 4))
 
 # Base colors option.
 base_colors = {
     TOOL: TOOL_COLOR,
-    FAKE_TOOL: FAKE_TOOL_COLOR,
     AGENT: AGENT_COLOR,
     TUBE: TUBE_COLOR,
-    FAKE_TUBE: FAKE_TUBE_COLOR,
     TRAP: TRAP_COLOR,
     FAKE_TRAP: FAKE_TRAP_COLOR,
     FOOD: FOOD_COLOR,

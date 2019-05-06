@@ -47,9 +47,6 @@ class TrapEnv(trap_tube_env.BaseTrapTubeEnv):
             tool_position=(3, 3),
             tool_size=4,
             tool_direction=0,
-            fake_tool_position=(-1, -1),
-            fake_tool_size=0,
-            fake_tool_direction=0,
             food_position=(4, 4))
 
 
@@ -92,58 +89,6 @@ class FakeTrapEnv(trap_tube_env.BaseTrapTubeEnv):
             tool_position=(3, 3),
             tool_size=4,
             tool_direction=0,
-            fake_tool_position=(-1, -1),
-            fake_tool_size=0,
-            fake_tool_direction=0,
-            food_position=(4, 4))
-
-
-class FakeToolEnv(trap_tube_env.BaseTrapTubeEnv):
-
-    successful_actions = [
-        trap_tube_env.ACTIONS.move.right,
-        trap_tube_env.ACTIONS.move.right,
-        trap_tube_env.ACTIONS.move.right,
-        trap_tube_env.ACTIONS.move.up,
-        trap_tube_env.ACTIONS.pull.down,
-        trap_tube_env.ACTIONS.move.right,
-        trap_tube_env.ACTIONS.move.right,
-        trap_tube_env.ACTIONS.move.right,
-        trap_tube_env.ACTIONS.move.right,
-        trap_tube_env.ACTIONS.move.right,
-        trap_tube_env.ACTIONS.move.up,
-        trap_tube_env.ACTIONS.move.up,
-        trap_tube_env.ACTIONS.move.up,
-        trap_tube_env.ACTIONS.pull.right,
-        trap_tube_env.ACTIONS.move.up,
-        trap_tube_env.ACTIONS.move.left,
-        trap_tube_env.ACTIONS.push.down,
-        trap_tube_env.ACTIONS.move.left,
-        trap_tube_env.ACTIONS.move.left,
-        trap_tube_env.ACTIONS.move.left,
-        trap_tube_env.ACTIONS.move.left]
-
-    def _make_trap_tube_config(self):
-        art = [
-            '          ',
-            '          ',
-            '          ',
-            '  mmmmmm  ',
-            '  w       ',
-            '  w       ',
-            '  mmmmmm  ',
-            '          ',
-            'a         ',
-            '          ',
-        ]
-        return trap_tube_env.TrapTubeConfig(
-            art=art,
-            tool_position=(4, 7),
-            tool_size=2,
-            tool_direction=0,
-            fake_tool_position=(3, 3),
-            fake_tool_size=4,
-            fake_tool_direction=0,
             food_position=(4, 4))
 
 
@@ -161,8 +106,7 @@ class TrapTubeEnvTest(parameterized.TestCase):
 
     @parameterized.named_parameters(
         ('Trap', TrapEnv, 1., TrapEnv.successful_actions),
-        ('FakeTrap', FakeTrapEnv, 1., FakeTrapEnv.successful_actions),
-        ('FakeTool', FakeToolEnv, 1., FakeToolEnv.successful_actions))
+        ('FakeTrap', FakeTrapEnv, 1., FakeTrapEnv.successful_actions))
     def testTotalRewards(self, constructor, expected_total_reward, actions):
         env = constructor()
         env.seed(42)

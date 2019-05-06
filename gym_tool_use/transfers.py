@@ -283,9 +283,6 @@ def perceptual_transfer(config, np_random):
         tool_position=tool_position,
         tool_size=tool_size,
         tool_direction=tool_direction,
-        fake_tool_position=(-1, -1),
-        fake_tool_size=0,
-        fake_tool_direction=0,
         food_position=food_position)
 
 
