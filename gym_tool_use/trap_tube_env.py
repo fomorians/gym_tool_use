@@ -81,7 +81,6 @@ class FakeTrapDrape(plab_things.Drape):
         pass
 
 
-# TODO(wenkesj): handle multiple foods.
 class FoodDrape(plab_things.Drape):
 
     def __init__(self, curtain, character, position):
@@ -113,23 +112,25 @@ class FoodDrape(plab_things.Drape):
                 agent_row, agent_col)
             agent_is_south_of_tool = tool.is_south_of_tool(
                 agent_row, agent_col)
+            agent_can_move_north = agent.can_move_north(board, things)
             food_is_in_col_range_of_tool = tool.is_in_col_range_of_tool(
                 food_row, food_col)
             food_is_north_of_tool = tool.is_north_of_tool(food_row, food_col)
-            if agent_is_south_of_tool and agent_is_in_col_range_of_tool and \
-                    food_is_north_of_tool and food_is_in_col_range_of_tool:
-                # TODO(wenkesj): Trap falling behavior.
-                trap_is_north_of_food = trap.curtain[
-                    food_row - 1, food_col]
-                # trap_is_north_of_food = False
-
-                tube_is_north_of_food = tube.curtain[
-                    food_row - 1, food_col]
-                if trap_is_north_of_food or tube_is_north_of_food or \
-                        (food_row == 0):
+            if agent_is_south_of_tool and agent_can_move_north and \
+                    agent_is_in_col_range_of_tool and food_is_north_of_tool \
+                    and food_is_in_col_range_of_tool:
+                if (food_row - 1) < 0:
                     self.has_moved = False
                 else:
-                    self._north(board, things, the_plot)
+                    trap_is_north_of_food = trap.curtain[
+                        food_row - 1, food_col]
+                    tube_is_north_of_food = tube.curtain[
+                        food_row - 1, food_col]
+                    if trap_is_north_of_food or tube_is_north_of_food or \
+                            (food_row == 0):
+                        self.has_moved = False
+                    else:
+                        self._north(board, things, the_plot)
             else:
                 self.has_moved = False
 
@@ -138,23 +139,25 @@ class FoodDrape(plab_things.Drape):
                 agent_row, agent_col)
             agent_is_north_of_tool = tool.is_north_of_tool(
                 agent_row, agent_col)
+            agent_can_move_north = agent.can_move_north(board, things)
             food_is_in_col_range_of_tool = tool.is_in_col_range_of_tool(
                 food_row, food_col)
             food_is_north_of_tool = tool.is_north_of_tool(food_row, food_col)
-            if agent_is_north_of_tool and agent_is_in_col_range_of_tool and \
-                    food_is_north_of_tool and food_is_in_col_range_of_tool:
-                # TODO(wenkesj): Trap falling behavior.
-                trap_is_north_of_food = trap.curtain[
-                    food_row - 1, food_col]
-                # trap_is_north_of_food = False
-
-                tube_is_north_of_food = tube.curtain[
-                    food_row - 1, food_col]
-                if trap_is_north_of_food or tube_is_north_of_food or \
-                        (food_row == 0):
+            if agent_is_north_of_tool and agent_can_move_north and \
+                    agent_is_in_col_range_of_tool and food_is_north_of_tool \
+                    and food_is_in_col_range_of_tool:
+                if (food_row - 1) < 0:
                     self.has_moved = False
                 else:
-                    self._north(board, things, the_plot)
+                    trap_is_north_of_food = trap.curtain[
+                        food_row - 1, food_col]
+                    tube_is_north_of_food = tube.curtain[
+                        food_row - 1, food_col]
+                    if trap_is_north_of_food or tube_is_north_of_food or \
+                            (food_row == 0):
+                        self.has_moved = False
+                    else:
+                        self._north(board, things, the_plot)
             else:
                 self.has_moved = False
 
@@ -163,22 +166,24 @@ class FoodDrape(plab_things.Drape):
                 agent_row, agent_col)
             agent_is_north_of_tool = tool.is_north_of_tool(
                 agent_row, agent_col)
+            agent_can_move_south = agent.can_move_south(board, things)
             food_is_in_col_range_of_tool = tool.is_in_col_range_of_tool(
                 food_row, food_col)
             food_is_south_of_tool = tool.is_south_of_tool(food_row, food_col)
-            if agent_is_north_of_tool and agent_is_in_col_range_of_tool and \
-                    food_is_south_of_tool and food_is_in_col_range_of_tool:
-                # TODO(wenkesj): Trap falling behavior.
-                trap_is_south_of_food = trap.curtain[
-                    food_row + 1, food_col]
-                # trap_is_south_of_food = False
-
-                tube_is_south_of_food = tube.curtain[
-                    food_row + 1, food_col]
-                if trap_is_south_of_food or tube_is_south_of_food:
+            if agent_is_north_of_tool and agent_can_move_south and \
+                    agent_is_in_col_range_of_tool and food_is_south_of_tool \
+                    and food_is_in_col_range_of_tool:
+                if (food_row + 1) >= board.shape[0]:
                     self.has_moved = False
                 else:
-                    self._south(board, things, the_plot)
+                    trap_is_south_of_food = trap.curtain[
+                        food_row + 1, food_col]
+                    tube_is_south_of_food = tube.curtain[
+                        food_row + 1, food_col]
+                    if trap_is_south_of_food or tube_is_south_of_food:
+                        self.has_moved = False
+                    else:
+                        self._south(board, things, the_plot)
             else:
                 self.has_moved = False
 
@@ -187,22 +192,24 @@ class FoodDrape(plab_things.Drape):
                 agent_row, agent_col)
             agent_is_south_of_tool = tool.is_south_of_tool(
                 agent_row, agent_col)
+            agent_can_move_south = agent.can_move_south(board, things)
             food_is_in_col_range_of_tool = tool.is_in_col_range_of_tool(
                 food_row, food_col)
             food_is_south_of_tool = tool.is_south_of_tool(food_row, food_col)
-            if agent_is_south_of_tool and agent_is_in_col_range_of_tool and \
-                    food_is_south_of_tool and food_is_in_col_range_of_tool:
-                # TODO(wenkesj): Trap falling behavior.
-                trap_is_south_of_food = trap.curtain[
-                    food_row + 1, food_col]
-                # trap_is_south_of_food = False
-
-                tube_is_south_of_food = tube.curtain[
-                    food_row + 1, food_col]
-                if trap_is_south_of_food or tube_is_south_of_food:
+            if agent_is_south_of_tool and agent_can_move_south and \
+                    agent_is_in_col_range_of_tool and food_is_south_of_tool \
+                    and food_is_in_col_range_of_tool:
+                if (food_row + 1) >= board.shape[0]:
                     self.has_moved = False
                 else:
-                    self._south(board, things, the_plot)
+                    trap_is_south_of_food = trap.curtain[
+                        food_row + 1, food_col]
+                    tube_is_south_of_food = tube.curtain[
+                        food_row + 1, food_col]
+                    if trap_is_south_of_food or tube_is_south_of_food:
+                        self.has_moved = False
+                    else:
+                        self._south(board, things, the_plot)
             else:
                 self.has_moved = False
 
@@ -210,20 +217,22 @@ class FoodDrape(plab_things.Drape):
             agent_is_in_row_range_of_tool = tool.is_in_row_range_of_tool(
                 agent_row, agent_col)
             agent_is_west_of_tool = tool.is_west_of_tool(agent_row, agent_col)
+            agent_can_move_east = agent.can_move_east(board, things)
             food_is_in_row_range_of_tool = tool.is_in_row_range_of_tool(
                 food_row, food_col)
             food_is_east_of_tool = tool.is_east_of_tool(food_row, food_col)
-            if agent_is_west_of_tool and agent_is_in_row_range_of_tool and \
-                    food_is_east_of_tool and food_is_in_row_range_of_tool:
-                # TODO(wenkesj): Trap falling behavior.
-                trap_is_east_of_food = trap.curtain[food_row, food_col + 1]
-                # trap_is_east_of_food = False
-
-                tube_is_east_of_food = tube.curtain[food_row, food_col + 1]
-                if trap_is_east_of_food or tube_is_east_of_food:
+            if agent_is_west_of_tool and agent_can_move_east and \
+                    agent_is_in_row_range_of_tool and food_is_east_of_tool \
+                    and food_is_in_row_range_of_tool:
+                if (food_col + 1) >= board.shape[1]:
                     self.has_moved = False
                 else:
-                    self._east(board, things, the_plot)
+                    trap_is_east_of_food = trap.curtain[food_row, food_col + 1]
+                    tube_is_east_of_food = tube.curtain[food_row, food_col + 1]
+                    if trap_is_east_of_food or tube_is_east_of_food:
+                        self.has_moved = False
+                    else:
+                        self._east(board, things, the_plot)
             else:
                 self.has_moved = False
 
@@ -231,20 +240,22 @@ class FoodDrape(plab_things.Drape):
             agent_is_in_row_range_of_tool = tool.is_in_row_range_of_tool(
                 agent_row, agent_col)
             agent_is_west_of_tool = tool.is_west_of_tool(agent_row, agent_col)
+            agent_can_move_west = agent.can_move_west(board, things)
             food_is_in_row_range_of_tool = tool.is_in_row_range_of_tool(
                 food_row, food_col)
             food_is_west_of_tool = tool.is_west_of_tool(food_row, food_col)
-            if agent_is_west_of_tool and agent_is_in_row_range_of_tool and \
-                    food_is_west_of_tool and food_is_in_row_range_of_tool:
-                # TODO(wenkesj): Trap falling behavior.
-                trap_is_west_of_food = trap.curtain[food_row, food_col - 1]
-                # trap_is_west_of_food = False
-
-                tube_is_west_of_food = tube.curtain[food_row, food_col - 1]
-                if trap_is_west_of_food or tube_is_west_of_food:
+            if agent_is_west_of_tool and agent_can_move_west and \
+                    agent_is_in_row_range_of_tool and food_is_west_of_tool \
+                    and food_is_in_row_range_of_tool:
+                if (food_col - 1) < 0:
                     self.has_moved = False
                 else:
-                    self._west(board, things, the_plot)
+                    trap_is_west_of_food = trap.curtain[food_row, food_col - 1]
+                    tube_is_west_of_food = tube.curtain[food_row, food_col - 1]
+                    if trap_is_west_of_food or tube_is_west_of_food:
+                        self.has_moved = False
+                    else:
+                        self._west(board, things, the_plot)
             else:
                 self.has_moved = False
 
@@ -252,19 +263,22 @@ class FoodDrape(plab_things.Drape):
             agent_is_in_row_range_of_tool = tool.is_in_row_range_of_tool(
                 agent_row, agent_col)
             agent_is_east_of_tool = tool.is_east_of_tool(agent_row, agent_col)
+            agent_can_move_west = agent.can_move_west(board, things)
             food_is_in_row_range_of_tool = tool.is_in_row_range_of_tool(
                 food_row, food_col)
             food_is_west_of_tool = tool.is_west_of_tool(food_row, food_col)
-            if agent_is_east_of_tool and agent_is_in_row_range_of_tool and \
-                    food_is_west_of_tool and food_is_in_row_range_of_tool:
-                # TODO(wenkesj): Trap falling behavior.
-                trap_is_west_of_food = trap.curtain[food_row, food_col - 1]
-                # trap_is_west_of_food = False
-                tube_is_west_of_food = tube.curtain[food_row, food_col - 1]
-                if trap_is_west_of_food or tube_is_west_of_food:
+            if agent_is_east_of_tool and agent_can_move_west and \
+                    agent_is_in_row_range_of_tool and food_is_west_of_tool \
+                    and food_is_in_row_range_of_tool:
+                if (food_col - 1) < 0:
                     self.has_moved = False
                 else:
-                    self._west(board, things, the_plot)
+                    trap_is_west_of_food = trap.curtain[food_row, food_col - 1]
+                    tube_is_west_of_food = tube.curtain[food_row, food_col - 1]
+                    if trap_is_west_of_food or tube_is_west_of_food:
+                        self.has_moved = False
+                    else:
+                        self._west(board, things, the_plot)
             else:
                 self.has_moved = False
 
@@ -272,20 +286,22 @@ class FoodDrape(plab_things.Drape):
             agent_is_in_row_range_of_tool = tool.is_in_row_range_of_tool(
                 agent_row, agent_col)
             agent_is_east_of_tool = tool.is_east_of_tool(agent_row, agent_col)
+            agent_can_move_east = agent.can_move_east(board, things)
             food_is_in_row_range_of_tool = tool.is_in_row_range_of_tool(
                 food_row, food_col)
             food_is_east_of_tool = tool.is_east_of_tool(food_row, food_col)
-            if agent_is_east_of_tool and agent_is_in_row_range_of_tool and \
-                    food_is_east_of_tool and food_is_in_row_range_of_tool:
-                # TODO(wenkesj): Trap falling behavior.
-                trap_is_east_of_food = trap.curtain[food_row, food_col + 1]
-                # trap_is_east_of_food = False
-
-                tube_is_east_of_food = tube.curtain[food_row, food_col + 1]
-                if trap_is_east_of_food or tube_is_east_of_food:
+            if agent_is_east_of_tool and agent_can_move_east and \
+                    agent_is_in_row_range_of_tool and food_is_east_of_tool \
+                    and food_is_in_row_range_of_tool:
+                if (food_col + 1) >= board.shape[1]:
                     self.has_moved = False
                 else:
-                    self._east(board, things, the_plot)
+                    trap_is_east_of_food = trap.curtain[food_row, food_col + 1]
+                    tube_is_east_of_food = tube.curtain[food_row, food_col + 1]
+                    if trap_is_east_of_food or tube_is_east_of_food:
+                        self.has_moved = False
+                    else:
+                        self._east(board, things, the_plot)
             else:
                 self.has_moved = False
 
@@ -336,8 +352,8 @@ class FoodDrape(plab_things.Drape):
         self.has_moved = False
 
 
-class BaseToolDrape(plab_things.Drape):
-    """Handles base tool logic."""
+class ToolDrape(plab_things.Drape):
+    """Handles tool logic."""
 
     def __init__(self,
                  curtain,
@@ -374,15 +390,7 @@ class BaseToolDrape(plab_things.Drape):
             for position in zip(s0, s1):
                 curtain[position] = True
 
-        super(BaseToolDrape, self).__init__(curtain, character)
-
-    def update(self, actions, board, layers, backdrop, things, the_plot):
-        pass
-
-
-# TODO(wenkesj): handle multiple tools.
-class ToolDrape(BaseToolDrape):
-    """Handles tool logic."""
+        super(ToolDrape, self).__init__(curtain, character)
 
     def _north(self, board, things, the_plot):
         if self._row == 0:
@@ -399,6 +407,10 @@ class ToolDrape(BaseToolDrape):
             self.has_moved = False
             return
 
+        if not things[AGENT].can_move_north(board, things):
+            self.has_moved = False
+            return
+
         the_plot.info['move_tool_north'] = True
         curtain = np.roll(self.curtain, -1, axis=0)
         np.copyto(self.curtain, curtain)
@@ -406,7 +418,8 @@ class ToolDrape(BaseToolDrape):
         self.has_moved = True
 
     def _south(self, board, things, the_plot):
-        if self._row == (board.shape[1] - 1):
+        if self._row == (board.shape[0] - 1 - (self._tool_size - 1) * int(
+                self._tool_direction == 0)):
             self.has_moved = False
             return
 
@@ -420,6 +433,10 @@ class ToolDrape(BaseToolDrape):
             self.has_moved = False
             return
 
+        if not things[AGENT].can_move_south(board, things):
+            self.has_moved = False
+            return
+
         the_plot.info['move_tool_south'] = True
         curtain = np.roll(self.curtain, 1, axis=0)
         np.copyto(self.curtain, curtain)
@@ -427,7 +444,8 @@ class ToolDrape(BaseToolDrape):
         self.has_moved = True
 
     def _east(self, board, things, the_plot):
-        if self._col == (board.shape[1] - 1):
+        if self._col == (board.shape[1] - 1 - (self._tool_size - 1) * int(
+                self._tool_direction == 1)):
             self.has_moved = False
             return
 
@@ -441,11 +459,15 @@ class ToolDrape(BaseToolDrape):
             self.has_moved = False
             return
 
-        the_plot.info['move_tool_east'] = True
+        if not things[AGENT].can_move_east(board, things):
+            self.has_moved = False
+            return
+
         curtain = np.roll(self.curtain, 1, axis=1)
         np.copyto(self.curtain, curtain)
         self._col += 1
         self.has_moved = True
+        the_plot.info['move_tool_east'] = True
 
     def _west(self, board, things, the_plot):
         if self._col == 0:
@@ -459,6 +481,10 @@ class ToolDrape(BaseToolDrape):
         food_has_moved = food.has_moved
         if food_is_west_of_tool and food_is_in_row_range_of_tool and not \
                 food_has_moved:
+            self.has_moved = False
+            return
+
+        if not things[AGENT].can_move_west(board, things):
             self.has_moved = False
             return
 
@@ -576,6 +602,50 @@ class AgentSprite(prefab_sprites.MazeWalker):
             impassible,
             confined_to_board=True)
 
+    def can_move_south(self, board, things):
+        row, col = self.position
+        if row == (board.shape[0] - 1):
+            return False
+        impassables = self.impassable
+        for impassable in impassables:
+            if impassable not in [TOOL]:
+                if things[impassable].curtain[row + 1, col]:
+                    return False
+        return True
+
+    def can_move_north(self, board, things):
+        row, col = self.position
+        if row == 0:
+            return False
+        impassables = self.impassable
+        for impassable in impassables:
+            if impassable not in [TOOL]:
+                if things[impassable].curtain[row - 1, col]:
+                    return False
+        return True
+
+    def can_move_west(self, board, things):
+        row, col = self.position
+        if col == 0:
+            return False
+        impassables = self.impassable
+        for impassable in impassables:
+            if impassable not in [TOOL]:
+                if things[impassable].curtain[row, col - 1]:
+                    return False
+        return True
+
+    def can_move_east(self, board, things):
+        row, col = self.position
+        if col == (board.shape[1] - 1):
+            return False
+        impassables = self.impassable
+        for impassable in impassables:
+            if impassable not in [TOOL]:
+                if things[impassable].curtain[row, col + 1]:
+                    return False
+        return True
+
     def update(self, actions, board, layers, backdrop, things, the_plot):
         tool = things[TOOL]
         rows, cols = self.position
@@ -625,14 +695,6 @@ class TaskDrape(plab_things.Drape):
     def update(self, actions, board, layers, backdrop, things, the_plot):
         agent = things[AGENT]
         food = things[FOOD]
-
-        # # TODO(wenkesj): Trap falling behavior. End episode of the food has
-        # # "fallen" into trap.
-        # trap = things[TRAP]
-        # num_trapped_food = np.logical_and(
-        #     trap.curtain, food.curtain)
-        # if np.sum(num_trapped_food) == np.sum(food.curtain):
-        #     the_plot.terminate_episode()
 
         if food.curtain[agent.position]:
             the_plot.info['reached_food'] = True
@@ -717,21 +779,29 @@ class BaseTrapTubeEnv(gym_pycolab.PyColabEnv):
 # Base config option.
 base_config = TrapTubeConfig(
     art=[
-        '          ',
-        '          ',
-        '          ',
-        '  mmmmmm  ',
-        '  u    n  ',
-        '  u    n  ',
-        '  mmmmmm  ',
-        '          ',
-        'a         ',
-        '          ',
+        '                  ',
+        '                  ',
+        '                  ',
+        '                  ',
+        '                  ',
+        '                  ',
+        '                  ',
+        '      mmmmmm      ',
+        '      u    n      ',
+        '      u    n      ',
+        '      mmmmmm      ',
+        '                  ',
+        '    a             ',
+        '                  ',
+        '                  ',
+        '                  ',
+        '                  ',
+        '                  ',
     ],
-    tool_position=(4, 3),
+    tool_position=(4 + 4, 3 + 4),
     tool_size=4,
     tool_direction=0,
-    food_position=(4, 4))
+    food_position=(4 + 4, 4 + 4))
 
 # Base colors option.
 base_colors = {

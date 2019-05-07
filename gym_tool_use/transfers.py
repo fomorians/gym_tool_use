@@ -125,32 +125,26 @@ def perceptual_transfer(config, np_random):
     """
     del config
 
-    base_art = [
-        '          ',
-        '          ',
-        '          ',
-        '          ',
-        '          ',
-        '          ',
-        '          ',
-        '          ',
-        '          ',
-        '          ',
-    ]
-    height = len(base_art)
-    width = len(base_art[0])
-
     # Sample height and width of tube.
     # We sample an even width and height to ensure that traps are centered.
-    tube_height = np_random.choice([4, 6])
+    min_tube_size = 4
+    max_tube_size = 6
+    tube_height = np_random.choice([min_tube_size, max_tube_size])
     h_by_2 = tube_height / 2
-    tube_width = np_random.choice([4, 6])
+    tube_width = np_random.choice([min_tube_size, max_tube_size])
     w_by_2 = tube_width / 2
+
+    height = max_tube_size * 3
+    width = max_tube_size * 3
+    base_art = [' ' * width] * height
 
     # Place tube in a random position.
     # We sample a random corner position.
-    tube_rows = list(range(1, height - tube_height - 1))
-    tube_cols = list(range(1, width - tube_width - 1))
+    tube_rows = list(range(
+        max_tube_size, height - tube_height - (max_tube_size - 1)))
+    tube_cols = list(range(
+        max_tube_size, width - tube_width - (max_tube_size - 1)))
+
     tube_corner_positions = list(
         itertools.product(
             tube_rows, tube_cols))
@@ -159,8 +153,7 @@ def perceptual_transfer(config, np_random):
     tube_corner_x, tube_corner_y = tube_corner_position
 
     # Generate traps and fake traps.
-    # We can sample from 1 to 4 traps.
-    num_total_traps = np_random.choice(range(1, 5))
+    num_total_traps = 2
     num_fake_traps = 1
     num_traps = num_total_traps - num_fake_traps
 
@@ -213,18 +206,6 @@ def perceptual_transfer(config, np_random):
     tube_positions += [
         (tube_corner_x + tube_height - 1, y) for y in tube_col_range]
 
-    # Place food in the tube.
-    # We sample a random position within the trap tube.
-    food_rows = list(range(
-        tube_corner_x + 1, tube_corner_x + tube_height - 1))
-    food_cols = list(range(
-        tube_corner_y + 1, tube_corner_y + tube_width - 1))
-    food_positions = list(
-        itertools.product(
-            food_rows, food_cols))
-    food_position = food_positions[
-        np_random.choice(len(food_positions))]
-
     # Place tool in a random position and direction.
     # Sample random tool direction, set the size equal to the tube width
     # or height depending on the direction.
@@ -237,28 +218,42 @@ def perceptual_transfer(config, np_random):
     tool_positions = list(
         itertools.product(
             tube_rows, tube_cols))
-    if food_position in tool_positions:
-        tool_positions.remove(food_position)
     tool_position = tool_positions[
         np_random.choice(len(tool_positions))]
 
-    # Always start agents on the edges.
+    # Place food in the tube.
+    # We sample a random position within the trap tube.
+    food_rows = list(range(
+        tube_corner_x + 1, tube_corner_x + tube_height - 1))
+    food_cols = list(range(
+        tube_corner_y + 1, tube_corner_y + tube_width - 1))
+    food_positions = list(
+        itertools.product(
+            food_rows, food_cols))
+
+    # Generate tool positions so that food does not intersect the tool.
+    tool_row, tool_col = tool_position
+    for offset in range(tool_size):
+        position = ((tool_row + offset, tool_col),
+                    (tool_row, tool_col + offset))[tool_direction]
+        if position in food_positions:
+            food_positions.remove(position)
+
+    food_position = food_positions[
+        np_random.choice(len(food_positions))]
+
+    # Start the agent in a random position around the tube.
     agent_positions = []
-    agent_row_range = list(range(0, height))
-    agent_col_range = list(range(0, width))
-
-    # West
-    agent_positions += [(x, 0) for x in agent_row_range]
-
-    # East
-    agent_positions += [(x, width - 1) for x in agent_row_range]
-
-    # North
-    agent_positions += [(0, y) for y in agent_col_range]
-
-    # South
-    agent_positions += [(height - 1, y) for y in agent_col_range]
-
+    agent_rows = list(range(0, height))
+    agent_cols = list(range(0, width))
+    agent_positions = list(
+        itertools.product(
+            agent_rows, agent_cols))
+    tube_area_rows = list(range(max_tube_size, max_tube_size * 2 + 1))
+    tube_area_cols = list(range(max_tube_size, max_tube_size * 2 + 1))
+    for tube_area_position in itertools.product(
+            tube_area_rows, tube_area_cols):
+        agent_positions.remove(tube_area_position)
     for position in tool_positions:
         if position in agent_positions:
             agent_positions.remove(position)
@@ -268,7 +263,6 @@ def perceptual_transfer(config, np_random):
     art = [list(row) for row in base_art]
     art = _paint(
         art, tube_positions, [trap_tube_env.TUBE] * len(tube_positions))
-
     art = _paint(
         art, fake_trap_positions,
         [trap_tube_env.FAKE_TRAP] * len(fake_trap_positions))
@@ -293,7 +287,7 @@ class BaseTransferTrapTubeEnv(trap_tube_env.BaseTrapTubeEnv):
                  color_transfers,
                  initial_config,
                  initial_colors,
-                 max_iterations=50):
+                 max_iterations=100):
         """Creates a new BaseTransferTrapTubeEnv.
 
         Forms a base for all trap transfer environments.
@@ -334,7 +328,7 @@ class BaseTransferTrapTubeEnv(trap_tube_env.BaseTrapTubeEnv):
 
 class PerceptualTrapTubeEnv(BaseTransferTrapTubeEnv):
 
-    def __init__(self, max_iterations=50):
+    def __init__(self, max_iterations=100):
         super(PerceptualTrapTubeEnv, self).__init__(
             config_transfers=[perceptual_transfer],
             color_transfers=[],
@@ -345,7 +339,7 @@ class PerceptualTrapTubeEnv(BaseTransferTrapTubeEnv):
 
 class StructuralTrapTubeEnv(BaseTransferTrapTubeEnv):
 
-    def __init__(self, max_iterations=50):
+    def __init__(self, max_iterations=100):
         super(StructuralTrapTubeEnv, self).__init__(
             config_transfers=[],
             color_transfers=[structural_transfer],
@@ -356,7 +350,7 @@ class StructuralTrapTubeEnv(BaseTransferTrapTubeEnv):
 
 class SymbolicTrapTubeEnv(BaseTransferTrapTubeEnv):
 
-    def __init__(self, max_iterations=50):
+    def __init__(self, max_iterations=100):
         super(SymbolicTrapTubeEnv, self).__init__(
             config_transfers=[],
             color_transfers=[symbolic_transfer],
@@ -367,7 +361,7 @@ class SymbolicTrapTubeEnv(BaseTransferTrapTubeEnv):
 
 class StructuralSymbolicTrapTubeEnv(BaseTransferTrapTubeEnv):
 
-    def __init__(self, max_iterations=50):
+    def __init__(self, max_iterations=100):
         super(StructuralSymbolicTrapTubeEnv, self).__init__(
             config_transfers=[],
             color_transfers=[structural_transfer, symbolic_transfer],
@@ -378,7 +372,7 @@ class StructuralSymbolicTrapTubeEnv(BaseTransferTrapTubeEnv):
 
 class PerceptualStructuralTrapTubeEnv(BaseTransferTrapTubeEnv):
 
-    def __init__(self, max_iterations=50):
+    def __init__(self, max_iterations=100):
         super(PerceptualStructuralTrapTubeEnv, self).__init__(
             config_transfers=[perceptual_transfer],
             color_transfers=[structural_transfer],
@@ -389,7 +383,7 @@ class PerceptualStructuralTrapTubeEnv(BaseTransferTrapTubeEnv):
 
 class PerceptualSymbolicTrapTubeEnv(BaseTransferTrapTubeEnv):
 
-    def __init__(self, max_iterations=50):
+    def __init__(self, max_iterations=100):
         super(PerceptualSymbolicTrapTubeEnv, self).__init__(
             config_transfers=[perceptual_transfer],
             color_transfers=[symbolic_transfer],
@@ -400,7 +394,7 @@ class PerceptualSymbolicTrapTubeEnv(BaseTransferTrapTubeEnv):
 
 class PerceptualStructuralSymbolicTrapTubeEnv(BaseTransferTrapTubeEnv):
 
-    def __init__(self, max_iterations=50):
+    def __init__(self, max_iterations=100):
         super(PerceptualStructuralSymbolicTrapTubeEnv, self).__init__(
             config_transfers=[perceptual_transfer],
             color_transfers=[structural_transfer, symbolic_transfer],
@@ -425,8 +419,9 @@ if __name__ == '__main__':
             'pstsy',
         ],
         required=True)
+    parser.add_argument('--seed', type=int, required=True)
     args = parser.parse_args()
-    np.random.seed(42)
+    np.random.seed(args.seed)
 
     if args.transfer == 'p':
         constructor = PerceptualTrapTubeEnv
@@ -443,8 +438,9 @@ if __name__ == '__main__':
     elif args.transfer == 'pstsy':
         constructor = PerceptualStructuralSymbolicTrapTubeEnv
 
-    for _ in range(10):
+    for i in range(10):
         env = constructor()
+        env.seed(i + args.seed)
         state = env.reset()
         env.render()
         total_reward = 0.
