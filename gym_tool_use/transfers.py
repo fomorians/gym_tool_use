@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import math
 import itertools
 import numpy as np
 
@@ -127,12 +128,12 @@ def perceptual_transfer(config, np_random):
 
     # Sample height and width of tube.
     # We sample an even width and height to ensure that traps are centered.
-    min_tube_size = 4
-    max_tube_size = 6
+    min_tube_size = 3
+    max_tube_size = 4
     tube_height = np_random.choice([min_tube_size, max_tube_size])
-    h_by_2 = tube_height / 2
+    h_by_2 = math.ceil(tube_height / 2)
     tube_width = np_random.choice([min_tube_size, max_tube_size])
-    w_by_2 = tube_width / 2
+    w_by_2 = math.ceil(tube_width / 2)
 
     height = max_tube_size * 3
     width = max_tube_size * 3
@@ -160,29 +161,41 @@ def perceptual_transfer(config, np_random):
     # Sample trap locations by side.
     total_trap_sides = np_random.choice(
         list(range(4)), size=num_total_traps, replace=False)
+
+    trap_xs = [tube_corner_x + h_by_2 - 1]
+    trap_ys = [tube_corner_y]
+    if tube_height == 4:
+        trap_xs.append(tube_corner_x + h_by_2)
+        trap_ys.append(tube_corner_y)
+    trap_west_positions = list(zip(trap_xs, trap_ys))
+
+    trap_xs = [tube_corner_x + h_by_2 - 1]
+    trap_ys = [tube_corner_y + tube_width - 1]
+    if tube_height == 4:
+        trap_xs.append(tube_corner_x + h_by_2)
+        trap_ys.append(tube_corner_y + tube_width - 1)
+    trap_east_positions = list(zip(trap_xs, trap_ys))
+
+    trap_xs = [tube_corner_x]
+    trap_ys = [tube_corner_y + w_by_2 - 1]
+    if tube_width == 4:
+        trap_xs.append(tube_corner_x)
+        trap_ys.append(tube_corner_y + w_by_2)
+    trap_north_positions = list(zip(trap_xs, trap_ys))
+
+    trap_xs = [tube_corner_x + tube_height - 1]
+    trap_ys = [tube_corner_y + w_by_2 - 1]
+    if tube_width == 4:
+        trap_xs.append(tube_corner_x + tube_height - 1)
+        trap_ys.append(tube_corner_y + w_by_2)
+    trap_south_positions = list(zip(trap_xs, trap_ys))
+
     total_trap_positions = [
-        # West
-        list(
-            zip([tube_corner_x + h_by_2 - 1, tube_corner_x + h_by_2],
-                [tube_corner_y, tube_corner_y])),
+        trap_west_positions,
+        trap_east_positions,
+        trap_north_positions,
+        trap_south_positions]
 
-        # East
-        list(
-            zip([tube_corner_x + h_by_2 - 1, tube_corner_x + h_by_2],
-                [tube_corner_y + tube_width - 1,
-                tube_corner_y + tube_width - 1])),
-
-        # North
-        list(
-            zip([tube_corner_x, tube_corner_x],
-                [tube_corner_y + w_by_2 - 1, tube_corner_y + w_by_2])),
-
-        # South
-        list(
-            zip([tube_corner_x + tube_height - 1,
-                 tube_corner_x + tube_height - 1],
-                [tube_corner_y + w_by_2 - 1, tube_corner_y + w_by_2])),
-    ]
     fake_trap_positions = total_trap_positions[total_trap_sides[0]]
     trap_positions = []
     for trap_side in total_trap_sides[1:]:
@@ -206,6 +219,18 @@ def perceptual_transfer(config, np_random):
     tube_positions += [
         (tube_corner_x + tube_height - 1, y) for y in tube_col_range]
 
+    # Place food in the tube.
+    # We sample a random position within the trap tube.
+    food_rows = list(range(
+        tube_corner_x + 1, tube_corner_x + tube_height - 1))
+    food_cols = list(range(
+        tube_corner_y + 1, tube_corner_y + tube_width - 1))
+    food_positions = list(
+        itertools.product(
+            food_rows, food_cols))
+    food_position = food_positions[
+        np_random.choice(len(food_positions))]
+
     # Place tool in a random position and direction.
     # Sample random tool direction, set the size equal to the tube width
     # or height depending on the direction.
@@ -217,30 +242,22 @@ def perceptual_transfer(config, np_random):
     tool_cols = list(range(0, width - col_offset))
     tool_positions = list(
         itertools.product(
-            tube_rows, tube_cols))
-    tool_position = tool_positions[
-        np_random.choice(len(tool_positions))]
+            tool_rows, tool_cols))
 
-    # Place food in the tube.
-    # We sample a random position within the trap tube.
-    food_rows = list(range(
-        tube_corner_x + 1, tube_corner_x + tube_height - 1))
-    food_cols = list(range(
-        tube_corner_y + 1, tube_corner_y + tube_width - 1))
-    food_positions = list(
-        itertools.product(
-            food_rows, food_cols))
-
-    # Generate tool positions so that food does not intersect the tool.
-    tool_row, tool_col = tool_position
-    for offset in range(tool_size):
-        position = ((tool_row + offset, tool_col),
-                    (tool_row, tool_col + offset))[tool_direction]
-        if position in food_positions:
-            food_positions.remove(position)
-
-    food_position = food_positions[
-        np_random.choice(len(food_positions))]
+    while True:
+        resample = False
+        tool_position = tool_positions[
+            np_random.choice(len(tool_positions))]
+        tool_row, tool_col = tool_position
+        for offset in range(tool_size):
+            position = ((tool_row + offset, tool_col),
+                        (tool_row, tool_col + offset))[tool_direction]
+            if position == food_position:
+                resample = True
+                tool_positions.remove(tool_position)
+                break
+        if not resample:
+            break
 
     # Start the agent in a random position around the tube.
     agent_positions = []

@@ -779,29 +779,23 @@ class BaseTrapTubeEnv(gym_pycolab.PyColabEnv):
 # Base config option.
 base_config = TrapTubeConfig(
     art=[
-        '                  ',
-        '                  ',
-        '                  ',
-        '                  ',
-        '                  ',
-        '                  ',
-        '                  ',
-        '      mmmmmm      ',
-        '      u    n      ',
-        '      u    n      ',
-        '      mmmmmm      ',
-        '                  ',
-        '    a             ',
-        '                  ',
-        '                  ',
-        '                  ',
-        '                  ',
-        '                  ',
+        '            ',
+        '            ',
+        '            ',
+        '            ',
+        '   mmmmmm   ',
+        '   u    n   ',
+        '   u    n   ',
+        '   mmmmmm   ',
+        '            ',
+        ' a          ',
+        '            ',
+        '            ',
     ],
-    tool_position=(4 + 4, 3 + 4),
+    tool_position=(4 + 1, 3 + 1),
     tool_size=4,
     tool_direction=0,
-    food_position=(4 + 4, 4 + 4))
+    food_position=(4 + 1, 4 + 1))
 
 # Base colors option.
 base_colors = {
