@@ -11,3 +11,30 @@ from gym_tool_use.transfers import (
     PerceptualStructuralTrapTubeEnv,
     PerceptualSymbolicTrapTubeEnv,
     PerceptualStructuralSymbolicTrapTubeEnv)
+
+from gym.envs.registration import register
+
+
+register(
+    id='PerceptualTrapTube-v0',
+    entry_point='gym_tool_use.transfers:PerceptualTrapTubeEnv')
+register(
+    id='StructuralTrapTube-v0',
+    entry_point='gym_tool_use.transfers:StructuralTrapTubeEnv')
+register(
+    id='SymbolicTrapTube-v0',
+    entry_point=('gym_tool_use.transfers:SymbolicTrapTubeEnv'))
+register(
+    id='PerceptualStructuralTrapTube-v0',
+    entry_point='gym_tool_use.transfers:PerceptualStructuralTrapTubeEnv')
+register(
+    id='PerceptualSymbolicTrapTube-v0',
+    entry_point='gym_tool_use.transfers:PerceptualSymbolicTrapTubeEnv')
+register(
+    id='PerceptualStructuralSymbolicTrapTube-v0',
+    entry_point=(
+        'gym_tool_use.transfers:PerceptualStructuralSymbolicTrapTubeEnv'))
+register(
+    id='StructuralSymbolicTrapTube-v0',
+    entry_point=(
+        'gym_tool_use.transfers:StructuralSymbolicTrapTubeEnv'))

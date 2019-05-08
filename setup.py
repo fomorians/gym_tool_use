@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='gym_tool_use',
-    version='0.0.0',
+    version='1.0.0',
     description='Gym tool-use environments.',
     url='https://github.com/fomorians/gym_tool_use',
     packages=find_packages(),

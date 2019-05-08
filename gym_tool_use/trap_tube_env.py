@@ -44,20 +44,24 @@ Directions = collections.namedtuple(
 
 ACTIONS = Actions(
     push=Directions(
-        up=0,
-        down=1,
-        left=2,
-        right=3),
+        up=[1, 0],
+        down=[1, 1],
+        left=[1, 2],
+        right=[1, 3]),
     pull=Directions(
-        up=4,
-        down=5,
-        left=6,
-        right=7),
+        up=[2, 4],
+        down=[2, 5],
+        left=[2, 6],
+        right=[2, 7]),
     move=Directions(
-        up=8,
-        down=9,
-        left=10,
-        right=11))
+        up=[0, 8],
+        down=[0, 9],
+        left=[0, 10],
+        right=[0, 11]))
+
+
+def actions_equal(actual_action, expected_action):
+    return np.all(actual_action == expected_action)
 
 
 class TubeDrape(plab_things.Drape):
@@ -100,14 +104,14 @@ class FoodDrape(plab_things.Drape):
         trap = things[TRAP]
         tube = things[TUBE]
 
-        if not actions:
+        if actions is None:
             self.has_moved = False
             return
 
         agent_row, agent_col = agent.position
         food_row, food_col = self.position
 
-        if actions == ACTIONS.push.up:
+        if actions_equal(actions, ACTIONS.push.up):
             agent_is_in_col_range_of_tool = tool.is_in_col_range_of_tool(
                 agent_row, agent_col)
             agent_is_south_of_tool = tool.is_south_of_tool(
@@ -134,7 +138,7 @@ class FoodDrape(plab_things.Drape):
             else:
                 self.has_moved = False
 
-        if actions == ACTIONS.pull.up:
+        if actions_equal(actions, ACTIONS.pull.up):
             agent_is_in_col_range_of_tool = tool.is_in_col_range_of_tool(
                 agent_row, agent_col)
             agent_is_north_of_tool = tool.is_north_of_tool(
@@ -161,7 +165,7 @@ class FoodDrape(plab_things.Drape):
             else:
                 self.has_moved = False
 
-        elif actions == ACTIONS.push.down:
+        elif actions_equal(actions, ACTIONS.push.down):
             agent_is_in_col_range_of_tool = tool.is_in_col_range_of_tool(
                 agent_row, agent_col)
             agent_is_north_of_tool = tool.is_north_of_tool(
@@ -187,7 +191,7 @@ class FoodDrape(plab_things.Drape):
             else:
                 self.has_moved = False
 
-        elif actions == ACTIONS.pull.down:
+        elif actions_equal(actions, ACTIONS.pull.down):
             agent_is_in_col_range_of_tool = tool.is_in_col_range_of_tool(
                 agent_row, agent_col)
             agent_is_south_of_tool = tool.is_south_of_tool(
@@ -213,7 +217,7 @@ class FoodDrape(plab_things.Drape):
             else:
                 self.has_moved = False
 
-        elif actions == ACTIONS.push.right:
+        elif actions_equal(actions, ACTIONS.push.right):
             agent_is_in_row_range_of_tool = tool.is_in_row_range_of_tool(
                 agent_row, agent_col)
             agent_is_west_of_tool = tool.is_west_of_tool(agent_row, agent_col)
@@ -236,7 +240,7 @@ class FoodDrape(plab_things.Drape):
             else:
                 self.has_moved = False
 
-        elif actions == ACTIONS.pull.left:
+        elif actions_equal(actions, ACTIONS.pull.left):
             agent_is_in_row_range_of_tool = tool.is_in_row_range_of_tool(
                 agent_row, agent_col)
             agent_is_west_of_tool = tool.is_west_of_tool(agent_row, agent_col)
@@ -259,7 +263,7 @@ class FoodDrape(plab_things.Drape):
             else:
                 self.has_moved = False
 
-        elif actions == ACTIONS.push.left:
+        elif actions_equal(actions, ACTIONS.push.left):
             agent_is_in_row_range_of_tool = tool.is_in_row_range_of_tool(
                 agent_row, agent_col)
             agent_is_east_of_tool = tool.is_east_of_tool(agent_row, agent_col)
@@ -282,7 +286,7 @@ class FoodDrape(plab_things.Drape):
             else:
                 self.has_moved = False
 
-        elif actions == ACTIONS.pull.right:
+        elif actions_equal(actions, ACTIONS.pull.right):
             agent_is_in_row_range_of_tool = tool.is_in_row_range_of_tool(
                 agent_row, agent_col)
             agent_is_east_of_tool = tool.is_east_of_tool(agent_row, agent_col)
@@ -526,61 +530,61 @@ class ToolDrape(plab_things.Drape):
     def update(self, actions, board, layers, backdrop, things, the_plot):
         agent = things[AGENT]
 
-        if not actions:
+        if actions is None:
             self.has_moved = False
             return
 
         row, col = agent.position
-        if actions == ACTIONS.push.up:
+        if actions_equal(actions, ACTIONS.push.up):
             is_in_col_range_of_tool = self.is_in_col_range_of_tool(row, col)
             is_south_of_tool = self.is_south_of_tool(row, col)
             if is_in_col_range_of_tool and is_south_of_tool:
                 self._north(board, things, the_plot)
             else:
                 self.has_moved = False
-        elif actions == ACTIONS.pull.down:
+        elif actions_equal(actions, ACTIONS.pull.down):
             is_in_col_range_of_tool = self.is_in_col_range_of_tool(row, col)
             is_south_of_tool = self.is_south_of_tool(row, col)
             if is_in_col_range_of_tool and is_south_of_tool:
                 self._south(board, things, the_plot)
             else:
                 self.has_moved = False
-        elif actions == ACTIONS.pull.up:
+        elif actions_equal(actions, ACTIONS.pull.up):
             is_in_col_range_of_tool = self.is_in_col_range_of_tool(row, col)
             is_north_of_tool = self.is_north_of_tool(row, col)
             if is_in_col_range_of_tool and is_north_of_tool:
                 self._north(board, things, the_plot)
             else:
                 self.has_moved = False
-        elif actions == ACTIONS.push.down:
+        elif actions_equal(actions, ACTIONS.push.down):
             is_in_col_range_of_tool = self.is_in_col_range_of_tool(row, col)
             is_north_of_tool = self.is_north_of_tool(row, col)
             if is_in_col_range_of_tool and is_north_of_tool:
                 self._south(board, things, the_plot)
             else:
                 self.has_moved = False
-        elif actions == ACTIONS.push.right:
+        elif actions_equal(actions, ACTIONS.push.right):
             is_in_row_range_of_tool = self.is_in_row_range_of_tool(row, col)
             is_west_of_tool = self.is_west_of_tool(row, col)
             if is_in_row_range_of_tool and is_west_of_tool:
                 self._east(board, things, the_plot)
             else:
                 self.has_moved = False
-        elif actions == ACTIONS.pull.left:
+        elif actions_equal(actions, ACTIONS.pull.left):
             is_in_row_range_of_tool = self.is_in_row_range_of_tool(row, col)
             is_west_of_tool = self.is_west_of_tool(row, col)
             if is_in_row_range_of_tool and is_west_of_tool:
                 self._west(board, things, the_plot)
             else:
                 self.has_moved = False
-        elif actions == ACTIONS.push.left:
+        elif actions_equal(actions, ACTIONS.push.left):
             is_in_row_range_of_tool = self.is_in_row_range_of_tool(row, col)
             is_east_of_tool = self.is_east_of_tool(row, col)
             if is_in_row_range_of_tool and is_east_of_tool:
                 self._west(board, things, the_plot)
             else:
                 self.has_moved = False
-        elif actions == ACTIONS.pull.right:
+        elif actions_equal(actions, ACTIONS.pull.right):
             is_in_row_range_of_tool = self.is_in_row_range_of_tool(row, col)
             is_east_of_tool = self.is_east_of_tool(row, col)
             if is_in_row_range_of_tool and is_east_of_tool:
@@ -650,41 +654,33 @@ class AgentSprite(prefab_sprites.MazeWalker):
         tool = things[TOOL]
         rows, cols = self.position
 
-        if not actions:
+        if actions is None:
             return
 
-        if actions == ACTIONS.move.up:
+        if actions_equal(actions, ACTIONS.move.up):
             self._north(board, the_plot)
-        elif actions == ACTIONS.push.up:
-            if tool.has_moved:
-                self._north(board, the_plot)
-        elif actions == ACTIONS.pull.up:
-            if tool.has_moved:
-                self._north(board, the_plot)
-        elif actions == ACTIONS.move.down:
+        elif actions_equal(actions, ACTIONS.push.up):
+            self._north(board, the_plot)
+        elif actions_equal(actions, ACTIONS.pull.up):
+            self._north(board, the_plot)
+        elif actions_equal(actions, ACTIONS.move.down):
             self._south(board, the_plot)
-        elif actions == ACTIONS.push.down:
-            if tool.has_moved:
-                self._south(board, the_plot)
-        elif actions == ACTIONS.pull.down:
-            if tool.has_moved:
-                self._south(board, the_plot)
-        elif actions == ACTIONS.move.left:
+        elif actions_equal(actions, ACTIONS.push.down):
+            self._south(board, the_plot)
+        elif actions_equal(actions, ACTIONS.pull.down):
+            self._south(board, the_plot)
+        elif actions_equal(actions, ACTIONS.move.left):
             self._west(board, the_plot)
-        elif actions == ACTIONS.push.left:
-            if tool.has_moved:
-                self._west(board, the_plot)
-        elif actions == ACTIONS.pull.left:
-            if tool.has_moved:
-                self._west(board, the_plot)
-        elif actions == ACTIONS.move.right:
+        elif actions_equal(actions, ACTIONS.push.left):
+            self._west(board, the_plot)
+        elif actions_equal(actions, ACTIONS.pull.left):
+            self._west(board, the_plot)
+        elif actions_equal(actions, ACTIONS.move.right):
             self._east(board, the_plot)
-        elif actions == ACTIONS.push.right:
-            if tool.has_moved:
-                self._east(board, the_plot)
-        elif actions == ACTIONS.pull.right:
-            if tool.has_moved:
-                self._east(board, the_plot)
+        elif actions_equal(actions, ACTIONS.push.right):
+            self._east(board, the_plot)
+        elif actions_equal(actions, ACTIONS.pull.right):
+            self._east(board, the_plot)
         else:
             self._stay(board, the_plot)
 
@@ -718,14 +714,18 @@ TrapTubeConfig = collections.namedtuple(
 class BaseTrapTubeEnv(gym_pycolab.PyColabEnv):
     """Trap Tube environment."""
 
-    def __init__(self, max_iterations=50):
+    def __init__(self,
+                 max_iterations=50,
+                 delay=50,
+                 resize_scale=32,
+                 default_reward=0.):
         super(BaseTrapTubeEnv, self).__init__(
             max_iterations=max_iterations,
-            default_reward=0.,
-            action_space=spaces.Discrete(
-                len(Actions._fields) * len(Directions._fields)),
-            resize_scale=32,
-            delay=60)
+            default_reward=default_reward,
+            action_space=spaces.MultiDiscrete(
+                [len(Actions._fields), len(Directions._fields)]),
+            resize_scale=resize_scale,
+            delay=delay)
 
     @abc.abstractmethod
     def _make_trap_tube_config(self):
@@ -787,16 +787,16 @@ base_config = TrapTubeConfig(
         '            ',
         '            ',
         '            ',
-        '   mmmmmm   ',
-        '   u    n   ',
-        '   u    n   ',
-        '   mmmmmm   ',
+        '    mmmm    ',
+        '    u  n    ',
+        '    u  n    ',
+        '    mmmm    ',
         '            ',
         ' a          ',
         '            ',
         '            ',
     ],
-    tool_position=(4 + 1, 3 + 1),
+    tool_position=(4 + 1, 3),
     tool_size=4,
     tool_direction=0,
     food_position=(4 + 1, 4 + 1))
