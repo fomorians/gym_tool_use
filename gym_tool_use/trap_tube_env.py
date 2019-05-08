@@ -696,6 +696,10 @@ class TaskDrape(plab_things.Drape):
         agent = things[AGENT]
         food = things[FOOD]
 
+        the_plot.info['agent_position'] = agent.position
+        the_plot.info['food_positions'] = np.stack(
+            np.where(food.curtain), axis=-1)
+
         if food.curtain[agent.position]:
             the_plot.info['reached_food'] = True
             the_plot.add_reward(REWARD)
