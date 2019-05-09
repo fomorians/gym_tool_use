@@ -49,15 +49,15 @@ ACTIONS = Actions(
         left=[1, 2],
         right=[1, 3]),
     pull=Directions(
-        up=[2, 4],
-        down=[2, 5],
-        left=[2, 6],
-        right=[2, 7]),
+        up=[2, 0],
+        down=[2, 1],
+        left=[2, 2],
+        right=[2, 3]),
     move=Directions(
-        up=[0, 8],
-        down=[0, 9],
-        left=[0, 10],
-        right=[0, 11]))
+        up=[0, 0],
+        down=[0, 1],
+        left=[0, 2],
+        right=[0, 3]))
 
 
 def actions_equal(actual_action, expected_action):
