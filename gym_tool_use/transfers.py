@@ -420,6 +420,15 @@ class PerceptualStructuralSymbolicTrapTubeEnv(BaseTransferTrapTubeEnv):
             max_iterations=max_iterations)
 
 
+class TrapTubeEnv(trap_tube_env.BaseTrapTubeEnv):
+
+    def _make_trap_tube_config(self):
+        return trap_tube_env.base_config
+
+    def make_colors(self):
+        return trap_tube_env.base_colors
+
+
 if __name__ == '__main__':
     import argparse
 
@@ -434,6 +443,7 @@ if __name__ == '__main__':
             'pst',
             'psy',
             'pstsy',
+            'n',
         ],
         required=True)
     parser.add_argument('--seed', type=int, required=True)
@@ -454,6 +464,8 @@ if __name__ == '__main__':
         constructor = PerceptualSymbolicTrapTubeEnv
     elif args.transfer == 'pstsy':
         constructor = PerceptualStructuralSymbolicTrapTubeEnv
+    elif args.transfer == 'n':
+        constructor = TrapTubeEnv
 
     for i in range(10):
         env = constructor()

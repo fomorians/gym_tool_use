@@ -16,6 +16,9 @@ from gym.envs.registration import register
 
 
 register(
+    id='TrapTube-v0',
+    entry_point='gym_tool_use.transfers:TrapTubeEnv')
+register(
     id='PerceptualTrapTube-v0',
     entry_point='gym_tool_use.transfers:PerceptualTrapTubeEnv')
 register(
