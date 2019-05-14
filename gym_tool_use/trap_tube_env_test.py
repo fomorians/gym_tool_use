@@ -35,7 +35,8 @@ class TestEnv(trap_tube_env.BaseTrapTubeEnv):
             tool_position=self._tool_position,
             tool_size=self._tool_size,
             tool_direction=self._tool_direction,
-            food_position=self._food_position)
+            food_position=self._food_position,
+            tool_category=trap_tube_env.TOOL)
 
     def make_colors(self):
         return trap_tube_env.base_colors

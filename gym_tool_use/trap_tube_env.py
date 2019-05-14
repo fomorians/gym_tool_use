@@ -21,28 +21,35 @@ from pycolab.prefab_parts import sprites as prefab_sprites
 
 TOOL = 'p'
 AGENT = 'a'
-TUBE = 'm'
+TUBE1 = 'm'
+TUBE2 = 'w'
 TRAP = 'u'
-FAKE_TRAP = 'n'
+EXIT = 'n'
 FOOD = 'f'
 TASK = 'j'
 GROUND = ' '
-SYMBOLIC_OBJECTS = [TOOL, TUBE, TRAP, FAKE_TRAP]
+SYMBOLIC_OBJECTS = [TOOL, TUBE1, TUBE2, TRAP, EXIT]
 TOOL_COLOR = (152, 208, 57)
 AGENT_COLOR = (113, 57, 208)
-TUBE_COLOR = (57, 152, 208)
+TUBE1_COLOR = (57, 152, 208)
+TUBE2_COLOR = (57, 152, 208)
 TRAP_COLOR = (208, 113, 57)
-FAKE_TRAP_COLOR = (208, 189, 57)
+EXIT_COLOR = (208, 189, 57)
 FOOD_COLOR = (208, 57, 77)
 GROUND_COLOR = (72, 65, 17)
 REWARD = 1.0
 
 Actions = collections.namedtuple(
-    'Actions', ['push', 'pull', 'move'])
+    'Actions', ['move', 'push', 'pull'])
 Directions = collections.namedtuple(
     'Directions', ['up', 'down', 'left', 'right'])
 
 ACTIONS = Actions(
+    move=Directions(
+        up=[0, 0],
+        down=[0, 1],
+        left=[0, 2],
+        right=[0, 3]),
     push=Directions(
         up=[1, 0],
         down=[1, 1],
@@ -52,19 +59,21 @@ ACTIONS = Actions(
         up=[2, 0],
         down=[2, 1],
         left=[2, 2],
-        right=[2, 3]),
-    move=Directions(
-        up=[0, 0],
-        down=[0, 1],
-        left=[0, 2],
-        right=[0, 3]))
+        right=[2, 3]))
 
 
 def actions_equal(actual_action, expected_action):
     return np.all(actual_action == expected_action)
 
 
-class TubeDrape(plab_things.Drape):
+class Tube1Drape(plab_things.Drape):
+    """Handles tube logic."""
+
+    def update(self, actions, board, layers, backdrop, things, the_plot):
+        pass
+
+
+class Tube2Drape(plab_things.Drape):
     """Handles tube logic."""
 
     def update(self, actions, board, layers, backdrop, things, the_plot):
@@ -78,8 +87,8 @@ class TrapDrape(plab_things.Drape):
         pass
 
 
-class FakeTrapDrape(plab_things.Drape):
-    """Handles fake trap logic."""
+class ExitDrape(plab_things.Drape):
+    """Handles exit logic."""
 
     def update(self, actions, board, layers, backdrop, things, the_plot):
         pass
@@ -102,7 +111,8 @@ class FoodDrape(plab_things.Drape):
         agent = things[AGENT]
         tool = things[TOOL]
         trap = things[TRAP]
-        tube = things[TUBE]
+        tube1 = things[TUBE1]
+        tube2 = things[TUBE2]
 
         if actions is None:
             self.has_moved = False
@@ -128,10 +138,12 @@ class FoodDrape(plab_things.Drape):
                 else:
                     trap_is_north_of_food = trap.curtain[
                         food_row - 1, food_col]
-                    tube_is_north_of_food = tube.curtain[
+                    tube1_is_north_of_food = tube1.curtain[
                         food_row - 1, food_col]
-                    if trap_is_north_of_food or tube_is_north_of_food or \
-                            (food_row == 0):
+                    tube2_is_north_of_food = tube2.curtain[
+                        food_row - 1, food_col]
+                    if trap_is_north_of_food or tube1_is_north_of_food or \
+                            tube2_is_north_of_food or (food_row == 0):
                         self.has_moved = False
                     else:
                         self._north(board, things, the_plot)
@@ -155,10 +167,12 @@ class FoodDrape(plab_things.Drape):
                 else:
                     trap_is_north_of_food = trap.curtain[
                         food_row - 1, food_col]
-                    tube_is_north_of_food = tube.curtain[
+                    tube1_is_north_of_food = tube1.curtain[
                         food_row - 1, food_col]
-                    if trap_is_north_of_food or tube_is_north_of_food or \
-                            (food_row == 0):
+                    tube2_is_north_of_food = tube1.curtain[
+                        food_row - 1, food_col]
+                    if trap_is_north_of_food or tube1_is_north_of_food or \
+                            tube2_is_north_of_food or (food_row == 0):
                         self.has_moved = False
                     else:
                         self._north(board, things, the_plot)
@@ -182,9 +196,12 @@ class FoodDrape(plab_things.Drape):
                 else:
                     trap_is_south_of_food = trap.curtain[
                         food_row + 1, food_col]
-                    tube_is_south_of_food = tube.curtain[
+                    tube1_is_south_of_food = tube1.curtain[
                         food_row + 1, food_col]
-                    if trap_is_south_of_food or tube_is_south_of_food:
+                    tube2_is_south_of_food = tube2.curtain[
+                        food_row + 1, food_col]
+                    if trap_is_south_of_food or tube1_is_south_of_food or \
+                            tube2_is_south_of_food:
                         self.has_moved = False
                     else:
                         self._south(board, things, the_plot)
@@ -208,9 +225,12 @@ class FoodDrape(plab_things.Drape):
                 else:
                     trap_is_south_of_food = trap.curtain[
                         food_row + 1, food_col]
-                    tube_is_south_of_food = tube.curtain[
+                    tube1_is_south_of_food = tube1.curtain[
                         food_row + 1, food_col]
-                    if trap_is_south_of_food or tube_is_south_of_food:
+                    tube2_is_south_of_food = tube2.curtain[
+                        food_row + 1, food_col]
+                    if trap_is_south_of_food or tube1_is_south_of_food or \
+                            tube2_is_south_of_food:
                         self.has_moved = False
                     else:
                         self._south(board, things, the_plot)
@@ -232,8 +252,12 @@ class FoodDrape(plab_things.Drape):
                     self.has_moved = False
                 else:
                     trap_is_east_of_food = trap.curtain[food_row, food_col + 1]
-                    tube_is_east_of_food = tube.curtain[food_row, food_col + 1]
-                    if trap_is_east_of_food or tube_is_east_of_food:
+                    tube1_is_east_of_food = tube1.curtain[
+                        food_row, food_col + 1]
+                    tube2_is_east_of_food = tube2.curtain[
+                        food_row, food_col + 1]
+                    if trap_is_east_of_food or tube1_is_east_of_food or \
+                            tube2_is_east_of_food:
                         self.has_moved = False
                     else:
                         self._east(board, things, the_plot)
@@ -255,8 +279,12 @@ class FoodDrape(plab_things.Drape):
                     self.has_moved = False
                 else:
                     trap_is_west_of_food = trap.curtain[food_row, food_col - 1]
-                    tube_is_west_of_food = tube.curtain[food_row, food_col - 1]
-                    if trap_is_west_of_food or tube_is_west_of_food:
+                    tube1_is_west_of_food = tube1.curtain[
+                        food_row, food_col - 1]
+                    tube2_is_west_of_food = tube2.curtain[
+                        food_row, food_col - 1]
+                    if trap_is_west_of_food or tube1_is_west_of_food or \
+                            tube2_is_west_of_food:
                         self.has_moved = False
                     else:
                         self._west(board, things, the_plot)
@@ -278,8 +306,12 @@ class FoodDrape(plab_things.Drape):
                     self.has_moved = False
                 else:
                     trap_is_west_of_food = trap.curtain[food_row, food_col - 1]
-                    tube_is_west_of_food = tube.curtain[food_row, food_col - 1]
-                    if trap_is_west_of_food or tube_is_west_of_food:
+                    tube1_is_west_of_food = tube1.curtain[
+                        food_row, food_col - 1]
+                    tube2_is_west_of_food = tube2.curtain[
+                        food_row, food_col - 1]
+                    if trap_is_west_of_food or tube1_is_west_of_food or \
+                            tube2_is_west_of_food:
                         self.has_moved = False
                     else:
                         self._west(board, things, the_plot)
@@ -301,8 +333,12 @@ class FoodDrape(plab_things.Drape):
                     self.has_moved = False
                 else:
                     trap_is_east_of_food = trap.curtain[food_row, food_col + 1]
-                    tube_is_east_of_food = tube.curtain[food_row, food_col + 1]
-                    if trap_is_east_of_food or tube_is_east_of_food:
+                    tube1_is_east_of_food = tube1.curtain[
+                        food_row, food_col + 1]
+                    tube2_is_east_of_food = tube2.curtain[
+                        food_row, food_col + 1]
+                    if trap_is_east_of_food or tube1_is_east_of_food or \
+                            tube2_is_east_of_food:
                         self.has_moved = False
                     else:
                         self._east(board, things, the_plot)
@@ -708,7 +744,8 @@ class TaskDrape(plab_things.Drape):
 # Configures the trap tube environment.
 TrapTubeConfig = collections.namedtuple(
     'TrapTubeConfig',
-    ['art', 'tool_position', 'tool_size', 'tool_direction', 'food_position'])
+    ['art', 'tool_position', 'tool_size', 'tool_direction', 'food_position',
+     'tool_category'])
 
 
 class BaseTrapTubeEnv(gym_pycolab.PyColabEnv):
@@ -744,7 +781,7 @@ class BaseTrapTubeEnv(gym_pycolab.PyColabEnv):
         """
         config = self._make_trap_tube_config()
 
-        impassible_to_agent = TUBE + TOOL + TRAP + FAKE_TRAP
+        impassible_to_agent = SYMBOLIC_OBJECTS
         sprites = {
             AGENT: ascii_art.Partial(
                 AgentSprite,
@@ -754,8 +791,9 @@ class BaseTrapTubeEnv(gym_pycolab.PyColabEnv):
                 FoodDrape,
                 config.food_position),
             TRAP: TrapDrape,
-            FAKE_TRAP: FakeTrapDrape,
-            TUBE: TubeDrape,
+            EXIT: ExitDrape,
+            TUBE1: Tube1Drape,
+            TUBE2: Tube2Drape,
             TOOL: ascii_art.Partial(
                 ToolDrape,
                 config.tool_position,
@@ -763,9 +801,9 @@ class BaseTrapTubeEnv(gym_pycolab.PyColabEnv):
                 tool_direction=config.tool_direction),
             TASK: TaskDrape}
         update_schedule = [
-            [FOOD], [TOOL], [AGENT], [TUBE], [TRAP], [FAKE_TRAP], [TASK]]
+            [FOOD], [TOOL], [AGENT], [TUBE1, TUBE2], [TRAP], [EXIT], [TASK]]
         z_order = [
-            TASK, TRAP, FAKE_TRAP, TUBE, FOOD, TOOL, AGENT]
+            TASK, TRAP, EXIT, TUBE1, TUBE2, FOOD, TOOL, AGENT]
         game = ascii_art.ascii_art_to_game(
             config.art,
             ' ',
@@ -790,24 +828,26 @@ base_config = TrapTubeConfig(
         '    mmmm    ',
         '    u  n    ',
         '    u  n    ',
-        '    mmmm    ',
+        '    wwww    ',
         '            ',
         ' a          ',
         '            ',
         '            ',
     ],
-    tool_position=(4 + 1, 3),
+    tool_position=(4 + 2, 2),
     tool_size=4,
     tool_direction=0,
-    food_position=(4 + 1, 4 + 1))
+    food_position=(4 + 2, 4 + 1),
+    tool_category=TOOL)
 
 # Base colors option.
 base_colors = {
     TOOL: TOOL_COLOR,
     AGENT: AGENT_COLOR,
-    TUBE: TUBE_COLOR,
+    TUBE1: TUBE1_COLOR,
+    TUBE2: TUBE2_COLOR,
     TRAP: TRAP_COLOR,
-    FAKE_TRAP: FAKE_TRAP_COLOR,
+    EXIT: EXIT_COLOR,
     FOOD: FOOD_COLOR,
     GROUND: GROUND_COLOR,
 }

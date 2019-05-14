@@ -57,7 +57,7 @@ def _paint(art, positions, characters):
     return art
 
 
-def structural_transfer(colors, np_random):
+def structural_color_transfer(colors, np_random):
     """Apply transfer to the color map and return another color map.
 
     Args:
@@ -68,17 +68,17 @@ def structural_transfer(colors, np_random):
         Dictionary mapping key name to `tuple(R, G, B)`.
     """
     # Force the colors to be random and unique.
-    color_keys = [
-        trap_tube_env.TOOL, trap_tube_env.TUBE,
-        trap_tube_env.TRAP, trap_tube_env.FAKE_TRAP,
-        trap_tube_env.GROUND]
+    color_keys = trap_tube_env.SYMBOLIC_OBJECTS + [trap_tube_env.GROUND]
     color_values = []
+    exclude_color_values = [
+        trap_tube_env.AGENT_COLOR, trap_tube_env.FOOD_COLOR]
+
     for key in color_keys:
         while True:
             value = _generate_unit(3, np_random)
             value = _unscale_unit(value, 255.)
             exit_loop = True
-            for color_value in color_values:
+            for color_value in (color_values + exclude_color_values):
                 if np.all(value == color_value):
                     exit_loop = False
                     break
@@ -91,30 +91,65 @@ def structural_transfer(colors, np_random):
     return colors
 
 
-def symbolic_transfer(colors, np_random):
-    """Apply transfer to the color map and return another color map.
+def symbolic_config_transfer(config, np_random):
+    """Apply transfer to the config and return another config.
 
     Args:
-        colors: Dictionary mapping key name to `tuple(R, G, B)`.
+        config: TrapTubeConfig.
         np_random: np random state.
 
     Returns:
-        Dictionary mapping key name to `tuple(R, G, B)`.
+        TrapTubeConfig.
     """
-    new_colors = dict(colors)
+    # Change the category of tool.
     all_objects = list(trap_tube_env.SYMBOLIC_OBJECTS)
-    indices = np.random.choice(len(all_objects), size=2, replace=False)
-    gt_objects = []
-    for index in indices:
-        gt_objects.append(all_objects[index])
-    for obj in gt_objects:
-        all_objects.remove(obj)
-    for obj in all_objects:
-        new_colors[obj] = new_colors[np.random.choice(gt_objects)]
-    return new_colors
+    tool_category = np_random.choice(all_objects)
+
+    # Don't do anything if the new category is a tool.
+    if tool_category == trap_tube_env.TOOL:
+        return config
+
+    # Get the positions of the object to swap.
+    art = [list(row) for row in config.art]
+    new_tool_positions = np.stack(
+        np.where(np.array(art) == tool_category), axis=-1)
+
+    # Get the size and direction of new "tool"
+    # If the rows are the same, the tool is pointing vertical (d=0).
+    new_tool_size = len(new_tool_positions)
+    if new_tool_size > 1:
+        new_tool_direction = int(
+            new_tool_positions[0, 0] == new_tool_positions[1, 0])
+    else:
+        new_tool_direction = 0
+    new_tool_position = new_tool_positions[0]
+
+    # Repaint old tool to new category.
+    tool_positions = []
+    tool_row, tool_col = config.tool_position
+    for offset in range(config.tool_size):
+        tool_positions.append(
+            ((tool_row + offset, tool_col),
+             (tool_row, tool_col + offset))[config.tool_direction])
+    art = _paint(
+        art, tool_positions, [tool_category] * len(tool_positions))
+
+    # Repaint new tool category
+    art = _paint(
+        art, new_tool_positions,
+        [trap_tube_env.GROUND] * len(new_tool_positions))
+    art = [''.join(row) for row in art]
+
+    return trap_tube_env.TrapTubeConfig(
+        art=art,
+        tool_position=new_tool_position,
+        tool_size=new_tool_size,
+        tool_direction=new_tool_direction,
+        food_position=config.food_position,
+        tool_category=tool_category)
 
 
-def perceptual_transfer(config, np_random):
+def perceptual_config_transfer(config, np_random):
     """Apply transfer to the config and return another config.
 
     Args:
@@ -153,10 +188,10 @@ def perceptual_transfer(config, np_random):
         np_random.choice(len(tube_corner_positions))]
     tube_corner_x, tube_corner_y = tube_corner_position
 
-    # Generate traps and fake traps.
+    # Generate traps and exits.
     num_total_traps = 2
-    num_fake_traps = 1
-    num_traps = num_total_traps - num_fake_traps
+    num_exits = 1
+    num_traps = num_total_traps - num_exits
 
     # Sample trap locations by side.
     total_trap_sides = np_random.choice(
@@ -190,34 +225,34 @@ def perceptual_transfer(config, np_random):
         trap_ys.append(tube_corner_y + w_by_2)
     trap_south_positions = list(zip(trap_xs, trap_ys))
 
-    total_trap_positions = [
-        trap_west_positions,
-        trap_east_positions,
-        trap_north_positions,
-        trap_south_positions]
+    # Get the orientation of the tube and traps.
+    trap_side_positions = [
+        (0, (trap_west_positions, trap_east_positions)),
+        (1, (trap_north_positions, trap_south_positions))]
+    trap_direction, new_trap_side_positions = trap_side_positions[
+        np_random.choice(2)]
+    exit_index = np_random.choice(2)
+    exit_positions = new_trap_side_positions[exit_index]
+    trap_positions = new_trap_side_positions[1 - exit_index]
 
-    fake_trap_positions = total_trap_positions[total_trap_sides[0]]
-    trap_positions = []
-    for trap_side in total_trap_sides[1:]:
-        trap_positions.extend(total_trap_positions[trap_side])
-
-    tube_positions = []
+    # Get the tube1, tube2 positions.
     tube_row_range = range(tube_corner_x, tube_corner_x + tube_height)
     tube_col_range = range(tube_corner_y, tube_corner_y + tube_width)
+    if trap_direction == 1:
+        west_tube_positions = [(x, tube_corner_y) for x in tube_row_range]
+        east_tube_positions = [
+            (x, tube_corner_y + tube_width - 1) for x in tube_row_range]
+        tube_positions = [west_tube_positions, east_tube_positions]
+    elif trap_direction == 0:
+        north_tube_positions = [(tube_corner_x, y) for y in tube_col_range]
+        south_tube_positions = [
+            (tube_corner_x + tube_height - 1, y) for y in tube_col_range]
+        tube_positions = [north_tube_positions, south_tube_positions]
 
-    # West
-    tube_positions += [(x, tube_corner_y) for x in tube_row_range]
-
-    # East
-    tube_positions += [
-        (x, tube_corner_y + tube_width - 1) for x in tube_row_range]
-
-    # North
-    tube_positions += [(tube_corner_x, y) for y in tube_col_range]
-
-    # South
-    tube_positions += [
-        (tube_corner_x + tube_height - 1, y) for y in tube_col_range]
+    tube1_index = np_random.choice(2)
+    tube2_index = 1 - tube1_index
+    tube1_positions = tube_positions[tube1_index]
+    tube2_positions = tube_positions[tube2_index]
 
     # Place food in the tube.
     # We sample a random position within the trap tube.
@@ -244,6 +279,12 @@ def perceptual_transfer(config, np_random):
         itertools.product(
             tool_rows, tool_cols))
 
+    disallow_positions = sum([
+        [food_position],
+        tube1_positions,
+        tube2_positions,
+        trap_positions,
+        exit_positions], [])
     while True:
         resample = False
         tool_position = tool_positions[
@@ -252,10 +293,21 @@ def perceptual_transfer(config, np_random):
         for offset in range(tool_size):
             position = ((tool_row + offset, tool_col),
                         (tool_row, tool_col + offset))[tool_direction]
-            if position == food_position:
-                resample = True
-                tool_positions.remove(tool_position)
-                break
+            # Make sure that there is always 1 space around the tool for
+            # checking overlap.
+            for padded_position in [
+                    (position[0],     position[1]),
+                    (position[0],     position[1] - 1),
+                    (position[0] - 1, position[1]),
+                    (position[0] - 1, position[1] - 1),
+                    (position[0],     position[1] + 1),
+                    (position[0] + 1, position[1]),
+                    (position[0] + 1, position[1] + 1)]:
+                if padded_position in disallow_positions:
+                    resample = True
+                    if tool_position in tool_positions:
+                        tool_positions.remove(tool_position)
+                    break
         if not resample:
             break
 
@@ -279,10 +331,12 @@ def perceptual_transfer(config, np_random):
 
     art = [list(row) for row in base_art]
     art = _paint(
-        art, tube_positions, [trap_tube_env.TUBE] * len(tube_positions))
+        art, tube1_positions, [trap_tube_env.TUBE1] * len(tube1_positions))
     art = _paint(
-        art, fake_trap_positions,
-        [trap_tube_env.FAKE_TRAP] * len(fake_trap_positions))
+        art, tube2_positions, [trap_tube_env.TUBE2] * len(tube2_positions))
+    art = _paint(
+        art, exit_positions,
+        [trap_tube_env.EXIT] * len(exit_positions))
     art = _paint(
         art, trap_positions,
         [trap_tube_env.TRAP] * len(trap_positions))
@@ -294,7 +348,8 @@ def perceptual_transfer(config, np_random):
         tool_position=tool_position,
         tool_size=tool_size,
         tool_direction=tool_direction,
-        food_position=food_position)
+        food_position=food_position,
+        tool_category=trap_tube_env.TOOL)
 
 
 class BaseTransferTrapTubeEnv(trap_tube_env.BaseTrapTubeEnv):
@@ -320,19 +375,16 @@ class BaseTransferTrapTubeEnv(trap_tube_env.BaseTrapTubeEnv):
         self._color_transfers = color_transfers
         self._initial_config = initial_config
         self._initial_colors = initial_colors
+        self._tool_category = trap_tube_env.TOOL
         super(BaseTransferTrapTubeEnv, self).__init__(
             max_iterations=max_iterations)
 
     def _make_trap_tube_config(self):
-        """Create the game art.
-
-        Returns:
-            TrapTubeConfig.
-        """
         np_random = self.np_random if self.np_random else np.random
         config = self._initial_config
         for transfer in self._config_transfers:
             config = transfer(config, np_random)
+        self._tool_category = config.tool_category
         return config
 
     def make_colors(self):
@@ -340,6 +392,11 @@ class BaseTransferTrapTubeEnv(trap_tube_env.BaseTrapTubeEnv):
         colors = self._initial_colors
         for transfer in self._color_transfers:
             colors = transfer(colors, np_random)
+        # swap tool colors.
+        if self._tool_category is not trap_tube_env.TOOL:
+            new_tool_color = colors[self._tool_category]
+            colors[self._tool_category] = colors[trap_tube_env.TOOL]
+            colors[trap_tube_env.TOOL] = new_tool_color
         return colors
 
 
@@ -347,7 +404,7 @@ class PerceptualTrapTubeEnv(BaseTransferTrapTubeEnv):
 
     def __init__(self, max_iterations=100):
         super(PerceptualTrapTubeEnv, self).__init__(
-            config_transfers=[perceptual_transfer],
+            config_transfers=[perceptual_config_transfer],
             color_transfers=[],
             initial_config=trap_tube_env.base_config,
             initial_colors=dict(trap_tube_env.base_colors),
@@ -359,7 +416,7 @@ class StructuralTrapTubeEnv(BaseTransferTrapTubeEnv):
     def __init__(self, max_iterations=100):
         super(StructuralTrapTubeEnv, self).__init__(
             config_transfers=[],
-            color_transfers=[structural_transfer],
+            color_transfers=[structural_color_transfer],
             initial_config=trap_tube_env.base_config,
             initial_colors=dict(trap_tube_env.base_colors),
             max_iterations=max_iterations)
@@ -369,8 +426,8 @@ class SymbolicTrapTubeEnv(BaseTransferTrapTubeEnv):
 
     def __init__(self, max_iterations=100):
         super(SymbolicTrapTubeEnv, self).__init__(
-            config_transfers=[],
-            color_transfers=[symbolic_transfer],
+            config_transfers=[symbolic_config_transfer],
+            color_transfers=[],
             initial_config=trap_tube_env.base_config,
             initial_colors=dict(trap_tube_env.base_colors),
             max_iterations=max_iterations)
@@ -380,8 +437,9 @@ class StructuralSymbolicTrapTubeEnv(BaseTransferTrapTubeEnv):
 
     def __init__(self, max_iterations=100):
         super(StructuralSymbolicTrapTubeEnv, self).__init__(
-            config_transfers=[],
-            color_transfers=[structural_transfer, symbolic_transfer],
+            config_transfers=[symbolic_config_transfer],
+            color_transfers=[
+                structural_color_transfer],
             initial_config=trap_tube_env.base_config,
             initial_colors=dict(trap_tube_env.base_colors),
             max_iterations=max_iterations)
@@ -391,8 +449,8 @@ class PerceptualStructuralTrapTubeEnv(BaseTransferTrapTubeEnv):
 
     def __init__(self, max_iterations=100):
         super(PerceptualStructuralTrapTubeEnv, self).__init__(
-            config_transfers=[perceptual_transfer],
-            color_transfers=[structural_transfer],
+            config_transfers=[perceptual_config_transfer],
+            color_transfers=[structural_color_transfer],
             initial_config=trap_tube_env.base_config,
             initial_colors=dict(trap_tube_env.base_colors),
             max_iterations=max_iterations)
@@ -402,8 +460,9 @@ class PerceptualSymbolicTrapTubeEnv(BaseTransferTrapTubeEnv):
 
     def __init__(self, max_iterations=100):
         super(PerceptualSymbolicTrapTubeEnv, self).__init__(
-            config_transfers=[perceptual_transfer],
-            color_transfers=[symbolic_transfer],
+            config_transfers=[
+                perceptual_config_transfer, symbolic_config_transfer],
+            color_transfers=[],
             initial_config=trap_tube_env.base_config,
             initial_colors=dict(trap_tube_env.base_colors),
             max_iterations=max_iterations)
@@ -413,8 +472,10 @@ class PerceptualStructuralSymbolicTrapTubeEnv(BaseTransferTrapTubeEnv):
 
     def __init__(self, max_iterations=100):
         super(PerceptualStructuralSymbolicTrapTubeEnv, self).__init__(
-            config_transfers=[perceptual_transfer],
-            color_transfers=[structural_transfer, symbolic_transfer],
+            config_transfers=[
+                perceptual_config_transfer, symbolic_config_transfer],
+            color_transfers=[
+                structural_color_transfer],
             initial_config=trap_tube_env.base_config,
             initial_colors=dict(trap_tube_env.base_colors),
             max_iterations=max_iterations)
