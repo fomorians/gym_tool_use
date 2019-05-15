@@ -238,15 +238,15 @@ def perceptual_config_transfer(config, np_random):
     # Get the tube1, tube2 positions.
     tube_row_range = range(tube_corner_x, tube_corner_x + tube_height)
     tube_col_range = range(tube_corner_y, tube_corner_y + tube_width)
+    west_tube_positions = [(x, tube_corner_y) for x in tube_row_range]
+    east_tube_positions = [
+        (x, tube_corner_y + tube_width - 1) for x in tube_row_range]
+    north_tube_positions = [(tube_corner_x, y) for y in tube_col_range]
+    south_tube_positions = [
+        (tube_corner_x + tube_height - 1, y) for y in tube_col_range]
     if trap_direction == 1:
-        west_tube_positions = [(x, tube_corner_y) for x in tube_row_range]
-        east_tube_positions = [
-            (x, tube_corner_y + tube_width - 1) for x in tube_row_range]
         tube_positions = [west_tube_positions, east_tube_positions]
     elif trap_direction == 0:
-        north_tube_positions = [(tube_corner_x, y) for y in tube_col_range]
-        south_tube_positions = [
-            (tube_corner_x + tube_height - 1, y) for y in tube_col_range]
         tube_positions = [north_tube_positions, south_tube_positions]
 
     tube1_index = np_random.choice(2)
@@ -279,37 +279,44 @@ def perceptual_config_transfer(config, np_random):
         itertools.product(
             tool_rows, tool_cols))
 
-    disallow_positions = sum([
-        [food_position],
-        tube1_positions,
-        tube2_positions,
-        trap_positions,
-        exit_positions], [])
-    while True:
-        resample = False
-        tool_position = tool_positions[
-            np_random.choice(len(tool_positions))]
-        tool_row, tool_col = tool_position
-        for offset in range(tool_size):
-            position = ((tool_row + offset, tool_col),
-                        (tool_row, tool_col + offset))[tool_direction]
-            # Make sure that there is always 1 space around the tool for
-            # checking overlap.
-            for padded_position in [
-                    (position[0],     position[1]),
-                    (position[0],     position[1] - 1),
-                    (position[0] - 1, position[1]),
-                    (position[0] - 1, position[1] - 1),
-                    (position[0],     position[1] + 1),
-                    (position[0] + 1, position[1]),
-                    (position[0] + 1, position[1] + 1)]:
-                if padded_position in disallow_positions:
-                    resample = True
-                    if tool_position in tool_positions:
-                        tool_positions.remove(tool_position)
-                    break
-        if not resample:
-            break
+    # Remove the tube area from the possible tool positions.
+    tube_rows = list(range(tube_corner_x, tube_corner_x + tube_height))
+    tube_cols = list(range(tube_corner_y, tube_corner_y + tube_width))
+    tube_area_positions = list(
+        itertools.product(
+            tube_rows, tube_cols))
+    for remove_position in tube_area_positions:
+        if remove_position in tool_positions:
+            tool_positions.remove(remove_position)
+
+    # Remove the areas around the tube area.
+    if tool_direction == 0:
+        area_rows = list(range(
+            tube_corner_x - tube_height, tube_corner_x + tube_height))
+        area_cols = list(range(
+            tube_corner_y - 2, tube_corner_y + tube_width + 2))
+        area_positions = list(
+            itertools.product(
+                area_rows, area_cols))
+        for remove_position in area_positions:
+            if remove_position in tool_positions:
+                tool_positions.remove(remove_position)
+
+    if tool_direction == 1:
+        area_rows = list(range(
+            tube_corner_x - 2, tube_corner_x + tube_height + 2))
+        area_cols = list(range(
+            tube_corner_y - tube_width, tube_corner_y + tube_width))
+        area_positions = list(
+            itertools.product(
+                area_rows, area_cols))
+        for remove_position in area_positions:
+            if remove_position in tool_positions:
+                tool_positions.remove(remove_position)
+
+    # Generate the tool position.
+    tool_position = tool_positions[
+        np_random.choice(len(tool_positions))]
 
     # Start the agent in a random position around the tube.
     agent_positions = []
@@ -528,7 +535,7 @@ if __name__ == '__main__':
     elif args.transfer == 'n':
         constructor = TrapTubeEnv
 
-    for i in range(10):
+    for i in range(100):
         env = constructor()
         env.seed(i + args.seed)
         state = env.reset()
