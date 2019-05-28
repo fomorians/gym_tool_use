@@ -1,4 +1,4 @@
-"""Sprites & Things for tool use games."""
+"""Trap tube environment."""
 
 from __future__ import absolute_import
 from __future__ import division
@@ -503,7 +503,7 @@ class BaseTrapTubeEnv(gym_pycolab.PyColabEnv):
 
     def __init__(self,
                  max_iterations=50,
-                 delay=50,
+                 delay=100,
                  resize_scale=32,
                  default_reward=0.):
         super(BaseTrapTubeEnv, self).__init__(
@@ -531,11 +531,10 @@ class BaseTrapTubeEnv(gym_pycolab.PyColabEnv):
         """
         config = self._make_trap_tube_config()
 
-        impassible_to_agent = SYMBOLIC_OBJECTS
         sprites = {
             AGENT: ascii_art.Partial(
                 AgentSprite,
-                impassible_to_agent)}
+                SYMBOLIC_OBJECTS)}
         drapes = {
             FOOD: ascii_art.Partial(
                 FoodDrape,
@@ -551,7 +550,7 @@ class BaseTrapTubeEnv(gym_pycolab.PyColabEnv):
                 tool_direction=config.tool_direction),
             TASK: TaskDrape}
         update_schedule = [
-            [FOOD], [TOOL], [AGENT], [TUBE1, TUBE2], [TRAP], [EXIT], [TASK]]
+            [FOOD], [TOOL], [EXIT], [AGENT], [TUBE1, TUBE2], [TRAP], [TASK]]
         z_order = [
             TASK, TRAP, EXIT, TUBE1, TUBE2, FOOD, TOOL, AGENT]
         game = ascii_art.ascii_art_to_game(
