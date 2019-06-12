@@ -71,6 +71,7 @@ def structural_color_transfer(colors, np_random):
     """
     # Force the colors to be random and unique.
     color_keys = trap_tube_env.SYMBOLIC_OBJECTS + [trap_tube_env.GROUND]
+    color_keys.pop(color_keys.index(trap_tube_env.TUBE2))
     color_values = []
     exclude_color_values = [
         trap_tube_env.AGENT_COLOR, trap_tube_env.FOOD_COLOR]
@@ -89,6 +90,7 @@ def structural_color_transfer(colors, np_random):
         color_values.append(value)
 
     new_colors = dict(zip(color_keys, color_values))
+    new_colors[trap_tube_env.TUBE2] = new_colors[trap_tube_env.TUBE1]
     colors.update(new_colors)
     return colors
 

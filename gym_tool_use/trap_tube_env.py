@@ -503,7 +503,7 @@ class BaseTrapTubeEnv(gym_pycolab.PyColabEnv):
 
     def __init__(self,
                  max_iterations=50,
-                 delay=100,
+                 delay=250,
                  resize_scale=32,
                  default_reward=0.):
         super(BaseTrapTubeEnv, self).__init__(
