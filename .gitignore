@@ -1,4 +1,6 @@
+/dist/
 .vscode
 .DS_Store
 *.egg-info
 *.pyc
+Pipfile.lock
