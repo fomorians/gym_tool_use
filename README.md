@@ -1,13 +1,36 @@
 # Gym Tool Use
 
-Gym tool use environments.
+[`gym`](http://gym.openai.com/docs/) tool use environments.
 
 <hr/>
 
 ```sh
-$ git clone https://github.com/fomorians/gym_tool_use.git
-$ (cd gym_tool_use; pip install -e .)
+$ pip install gym-tool-use
 ```
+
+# Usage
+
+```python
+import gym_tool_use  # import to register gym envs
+env = gym.make("TrapTube-v0")
+observation = env.reset()
+action = env.action_space.sample()
+observation_next, reward, done, info = env.step(action)
+image = env.render(mode="rgb_array")  # also supports mode="human"
+```
+
+# Environments
+
+The following environments are registered:
+
+- `"TrapTube-v0"` (base task)
+- `"PerceptualTrapTube-v0"`
+- `"StructuralTrapTube-v0"`
+- `"SymbolicTrapTube-v0"`
+- `"PerceptualSymbolicTrapTube-v0"`
+- `"StructuralSymbolicTrapTube-v0"`
+- `"PerceptualStructuralTrapTube-v0"`
+- `"PerceptualStructuralSymbolicTrapTube-v0"`
 
 # Development
 
