@@ -32,6 +32,10 @@ The following environments are registered:
 - `"PerceptualStructuralTrapTube-v0"`
 - `"PerceptualStructuralSymbolicTrapTube-v0"`
 
+# Baselines
+
+Baseline implementations here: https://github.com/fomorians/tool-use
+
 # Development
 
 Development is started with `pipenv`.
