@@ -17,7 +17,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/fomorians/gym_tool_use",
-    download_url="https://github.com/fomorians/gym_tool_use/archive/v0.2.tar.gz",
+    download_url="https://github.com/fomorians/gym_tool_use/archive/v1.0.0.tar.gz",
     license="Apache 2.0",
     packages=find_packages(),
     install_requires=install_requires,
