@@ -10,34 +10,51 @@ from gym_tool_use.transfers import (
     StructuralSymbolicTrapTubeEnv,
     PerceptualStructuralTrapTubeEnv,
     PerceptualSymbolicTrapTubeEnv,
-    PerceptualStructuralSymbolicTrapTubeEnv)
+    PerceptualStructuralSymbolicTrapTubeEnv,
+)
 
 from gym.envs.registration import register
 
+MAX_EPISODE_STEPS = 100
+
 
 register(
-    id='TrapTube-v0',
-    entry_point='gym_tool_use.transfers:TrapTubeEnv')
+    id="TrapTube-v0",
+    entry_point="gym_tool_use.transfers:TrapTubeEnv",
+    max_episode_steps=MAX_EPISODE_STEPS,
+)
 register(
-    id='PerceptualTrapTube-v0',
-    entry_point='gym_tool_use.transfers:PerceptualTrapTubeEnv')
+    id="PerceptualTrapTube-v0",
+    entry_point="gym_tool_use.transfers:PerceptualTrapTubeEnv",
+    max_episode_steps=MAX_EPISODE_STEPS,
+)
 register(
-    id='StructuralTrapTube-v0',
-    entry_point='gym_tool_use.transfers:StructuralTrapTubeEnv')
+    id="StructuralTrapTube-v0",
+    entry_point="gym_tool_use.transfers:StructuralTrapTubeEnv",
+    max_episode_steps=MAX_EPISODE_STEPS,
+)
 register(
-    id='SymbolicTrapTube-v0',
-    entry_point=('gym_tool_use.transfers:SymbolicTrapTubeEnv'))
+    id="SymbolicTrapTube-v0",
+    entry_point="gym_tool_use.transfers:SymbolicTrapTubeEnv",
+    max_episode_steps=MAX_EPISODE_STEPS,
+)
 register(
-    id='PerceptualStructuralTrapTube-v0',
-    entry_point='gym_tool_use.transfers:PerceptualStructuralTrapTubeEnv')
+    id="PerceptualStructuralTrapTube-v0",
+    entry_point="gym_tool_use.transfers:PerceptualStructuralTrapTubeEnv",
+    max_episode_steps=MAX_EPISODE_STEPS,
+)
 register(
-    id='PerceptualSymbolicTrapTube-v0',
-    entry_point='gym_tool_use.transfers:PerceptualSymbolicTrapTubeEnv')
+    id="PerceptualSymbolicTrapTube-v0",
+    entry_point="gym_tool_use.transfers:PerceptualSymbolicTrapTubeEnv",
+    max_episode_steps=MAX_EPISODE_STEPS,
+)
 register(
-    id='PerceptualStructuralSymbolicTrapTube-v0',
-    entry_point=(
-        'gym_tool_use.transfers:PerceptualStructuralSymbolicTrapTubeEnv'))
+    id="PerceptualStructuralSymbolicTrapTube-v0",
+    entry_point="gym_tool_use.transfers:PerceptualStructuralSymbolicTrapTubeEnv",
+    max_episode_steps=MAX_EPISODE_STEPS,
+)
 register(
-    id='StructuralSymbolicTrapTube-v0',
-    entry_point=(
-        'gym_tool_use.transfers:StructuralSymbolicTrapTubeEnv'))
+    id="StructuralSymbolicTrapTube-v0",
+    entry_point="gym_tool_use.transfers:StructuralSymbolicTrapTubeEnv",
+    max_episode_steps=MAX_EPISODE_STEPS,
+)
